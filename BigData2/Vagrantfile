@@ -35,7 +35,7 @@ Vagrant.configure(2) do |config|
 
     config.vm.define "nodeB" do |nodeB|
         nodeB.vm.box = "ubuntu/trusty64"
-        nodeA.vm.network "forwarded_port", guest: 8088, host: 9088
+        nodeB.vm.network "forwarded_port", guest: 8088, host: 9088
         nodeB.vm.provision "shell", inline: <<-SHELL
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
             sudo echo "IP_ADDRESS master" >> /etc/hosts
