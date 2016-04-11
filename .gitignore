@@ -1,0 +1,7 @@
+.idea/
+.vagrant/
+*.iml
+out/
+target/
+*/out*
+hw1/queries_out.txt

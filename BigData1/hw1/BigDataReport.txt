@@ -1,0 +1,12 @@
+Big data report:
+The functions in MoviesStorage delegates to another class we have that implements the required functions, but gets only the required parameters for the functions, not an interator as the StorageProvider must work with.
+
+We have an alternative representation of data:
+InternalMovie:
+- Contains the list of internal movie reviews for that movie, and allows to compute the avg score for the movies
+- The InternalMovieReview contains the movie name for which this is a review of, the review score, and all the other regular review properties.
+
+MoviesFunctions has a list of Movies, and a lazily created map from string movie id to the correct movie. 
+We used the Java 8 Stream API extensively in the implementation of the required functions.
+
+
