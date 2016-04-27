@@ -10,6 +10,11 @@
         <description>Maximum limit of memory to allocate to each container request at the Resource Manager.</description>
     </property>
     <property>
+        <name>yarn.nodemanager.vmem-check-enabled</name>
+        <value>false</value>
+        <description>Whether virtual memory limits will be enforced for containers.</description>
+    </property>
+    <property>
         <name>yarn.scheduler.minimum-allocation-vcores</name>
         <value>1</value>
         <description>The minimum allocation for every container request at the RM, in terms of virtual CPU cores. Requests lower than this won't take effect, and the specified value will get allocated the minimum.</description>

@@ -11,7 +11,7 @@ Vagrant.configure(2) do |config|
         nodeA.vm.network "private_network", ip: "37.51.23.10"
         nodeA.vm.network "forwarded_port", guest: 8088, host: 8088
         nodeA.vm.network "forwarded_port", guest: 50070, host: 50070
-        nodeA.vm.hostname = "master" # Don't use this. Bad!
+        nodeA.vm.hostname = "master"
         nodeA.vm.provision "shell", inline: <<-SHELL
 
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
@@ -21,7 +21,10 @@ Vagrant.configure(2) do |config|
             # Update VM to the latest binaries from distribution
             # package.
             sudo apt-get update && sudo apt-get upgrade -y
-            sudo apt-get install -y vim telnet wget curl htop nmon
+            sudo apt-get install -y vim telnet wget curl htop nmon dos2unix
+
+            # Convert windows' \r\n to Unix's \n
+            dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/* && dos2unix -q /vagrant/config/.bashrc
 
             # Installing and configuring java.
             cp /vagrant/install_java.sh .
@@ -38,7 +41,6 @@ Vagrant.configure(2) do |config|
             # instalation and configuration of Hadoop cluster.
 
             # !!! Fill your commands here !!!
-            dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/*
 
             cp /vagrant/scripts/* .
             source ./install-hadoop.sh
@@ -51,7 +53,7 @@ Vagrant.configure(2) do |config|
         nodeB.vm.box = "ubuntu/trusty64"
         nodeB.vm.network "private_network", ip: "37.51.23.11"
         nodeB.vm.network "forwarded_port", guest: 8088, host: 9088
-        nodeB.vm.hostname = "slave" # Don't use this. Bad!
+        nodeB.vm.hostname = "slave"
         nodeB.vm.provision "shell", inline: <<-SHELL
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
             sudo echo "37.51.23.10 master" >> /etc/hosts
@@ -60,7 +62,10 @@ Vagrant.configure(2) do |config|
             # Update VM to the latest binaries from distribution
             # package.
             sudo apt-get update && sudo apt-get upgrade -y
-            sudo apt-get install -y vim telnet wget curl htop nmon
+            sudo apt-get install -y vim telnet wget curl htop nmon dos2unix
+
+            # Convert windows' \r\n to Unix's \n
+            dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/* && dos2unix -q /vagrant/config/.bashrc
 
             # Installing and configuring java.
             cp /vagrant/install_java.sh .
@@ -77,7 +82,6 @@ Vagrant.configure(2) do |config|
             # instalation and configuration of Hadoop cluster.
 
             # !!! Fill your commands here !!!
-            dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/*
             
             cp /vagrant/scripts/* .
             source ./install-hadoop.sh
