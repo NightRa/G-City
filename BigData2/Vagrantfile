@@ -4,7 +4,9 @@
 Vagrant.configure(2) do |config|
     config.vm.define "nodeA" do |nodeA|
         nodeA.vm.box = "ubuntu/trusty64"
+        nodeA.vm.network "private_network", ip: "192.168.50.4"
         nodeA.vm.network "forwarded_port", guest: 8088, host: 8088
+        nodeA.vm.hostname = "master"
         nodeA.vm.provision "shell", inline: <<-SHELL
 
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
@@ -30,12 +32,36 @@ Vagrant.configure(2) do |config|
             # instalation and configuration of Hadoop cluster.
 
             # !!! Fill your commands here !!!
+            wget http://apache.mirrors.spacedump.net/hadoop/common/stable/hadoop-2.7.2.tar.gz
+            
+            echo EXTRACTING HADOOP
+
+            tar xvf hadoop-2.7.2.tar.gz --gzip -C .
+
+            echo Exporting ENV. Variables
+
+            export PATH=$PATH:/usr/lib/jvm/jdk1.8.0_77/bin
+            export JAVA_HOME="/usr/lib/jvm/jdk1.8.0_77"
+            export HADOOP_PREFIX="/home/vagrant/hadoop-2.7.2"
+            export HADOOP_HOME=$HADOOP_PREFIX
+            export HADOOP_COMMON_HOME=$HADOOP_PREFIX
+            export HADOOP_CONF_DIR=$HADOOP_PREFIX/etc/hadoop
+            export HADOOP_HDFS_HOME=$HADOOP_PREFIX
+            export HADOOP_MAPRED_HOME=$HADOOP_PREFIX
+            export HADOOP_YARN_HOME=$HADOOP_PREFIX
+
+            sudo cp -f /vagrant/config/core-site.xml $HADOOP_PREFIX/etc/hadoop/core-site.xml
+            sudo cp -f /vagrant/config/hdfs-site.xml $HADOOP_PREFIX/etc/hadoop/hdfs-site.xml
+            sudo cp -f /vagrant/config/yarn-site.xml $HADOOP_PREFIX/etc/hadoop/yarn-site.xml
+
         SHELL
     end
 
     config.vm.define "nodeB" do |nodeB|
         nodeB.vm.box = "ubuntu/trusty64"
+        nodeB.vm.network "private_network", ip: "192.168.50.5"
         nodeB.vm.network "forwarded_port", guest: 8088, host: 9088
+        nodeB.vm.hostname = "slave"
         nodeB.vm.provision "shell", inline: <<-SHELL
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
             sudo echo "IP_ADDRESS master" >> /etc/hosts
