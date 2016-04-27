@@ -8,8 +8,12 @@ fi
 
 sudo apt-get install curl -y
 
-curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o jdk-8-linux-x64.tar.gz
-tar -xvf jdk-8-linux-x64.tar.gz
+if ! [ -f /vagrant/jdk-8-linux-x64.tar.gz ]; then
+    echo Using Cached JVM Archive
+    curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
+fi
+
+tar -xvf /vagrant/jdk-8-linux-x64.tar.gz
 
 sudo mkdir -p /usr/lib/jvm
 sudo mv ./jdk1.8.* /usr/lib/jvm/
@@ -23,7 +27,7 @@ sudo chmod a+x /usr/bin/javac
 sudo chmod a+x /usr/bin/javaws
 sudo chown -R root:root /usr/lib/jvm/jdk1.8.0_77
 
-rm jdk-8-linux-x64.tar.gz
+# rm jdk-8-linux-x64.tar.gz
 rm -f equip_base.sh
 rm -f equip_java7_64.sh
 

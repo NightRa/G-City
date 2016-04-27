@@ -5,3 +5,5 @@ out/
 target/
 */out*
 hw1/queries_out.txt
+*.tar.gz
+files/

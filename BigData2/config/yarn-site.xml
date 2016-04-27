@@ -6,7 +6,7 @@
     </property>
     <property>
         <name>yarn.scheduler.maximum-allocation-mb</name>
-        <value>2048</value>
+        <value>4096</value>
         <description>Maximum limit of memory to allocate to each container request at the Resource Manager.</description>
     </property>
     <property>
@@ -28,5 +28,10 @@
         <name>yarn.nodemanager.resource.cpu-vcores</name>
         <value>4</value>
         <description>Number of CPU cores that can be allocated for containers.</description>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>master</value>
+        <description>The hostname of the RM.</description>
     </property>
 </configuration>

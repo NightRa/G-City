@@ -1,5 +1,5 @@
 #! /bin/bash
 
 vagrant up
-vagrant ssh master -c "./after_startup.sh"
-vagrant ssh slave -c "./after_startup.sh"
+vagrant ssh nodeA -c "./after_startup.sh && ./start-master.sh"
+vagrant ssh nodeB -c "./after_startup.sh && ./start-slave.sh"
