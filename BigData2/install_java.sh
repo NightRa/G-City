@@ -8,9 +8,10 @@ fi
 
 sudo apt-get install curl -y
 
-if ! [ -f /vagrant/jdk-8-linux-x64.tar.gz ]; then
-    echo Using Cached JVM Archive
-    curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
+if [ -f /vagrant/jdk-8-linux-x64.tar.gz ]; then   
+    echo Using Cached JVM Archive    
+else 
+	curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
 fi
 
 tar -xvf /vagrant/jdk-8-linux-x64.tar.gz
