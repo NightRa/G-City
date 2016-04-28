@@ -12,6 +12,9 @@ Vagrant.configure(2) do |config|
         nodeA.vm.network "forwarded_port", guest: 8088, host: 8088
         nodeA.vm.network "forwarded_port", guest: 50070, host: 50070
         nodeA.vm.hostname = "master"
+        if Vagrant.has_plugin?("vagrant-cachier")
+            nodeA.cache.scope = :box
+        end
         nodeA.vm.provision "shell", inline: <<-SHELL
 
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
@@ -23,7 +26,6 @@ Vagrant.configure(2) do |config|
             sudo apt-get update && sudo apt-get upgrade -y
             sudo apt-get install -y vim telnet wget curl htop nmon dos2unix
 
-            # Convert windows' \r\n to Unix's \n
             dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/* && dos2unix -q /vagrant/config/.bashrc
 
             # Installing and configuring java.
@@ -54,6 +56,9 @@ Vagrant.configure(2) do |config|
         nodeB.vm.network "private_network", ip: "37.51.23.11"
         nodeB.vm.network "forwarded_port", guest: 8088, host: 9088
         nodeB.vm.hostname = "slave"
+        if Vagrant.has_plugin?("vagrant-cachier")
+            nodeB.cache.scope = :box
+        end
         nodeB.vm.provision "shell", inline: <<-SHELL
             # !!! YOU NEED TO REPLACE HERE CORRECT IP ADDRESS !!!
             sudo echo "37.51.23.10 master" >> /etc/hosts
@@ -64,7 +69,6 @@ Vagrant.configure(2) do |config|
             sudo apt-get update && sudo apt-get upgrade -y
             sudo apt-get install -y vim telnet wget curl htop nmon dos2unix
 
-            # Convert windows' \r\n to Unix's \n
             dos2unix -q /vagrant/*.sh && dos2unix -q /vagrant/scripts/* && dos2unix -q /vagrant/config/* && dos2unix -q /vagrant/config/.bashrc
 
             # Installing and configuring java.

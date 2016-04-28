@@ -14,7 +14,8 @@ else
 	curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
 fi
 
-tar -xvf /vagrant/jdk-8-linux-x64.tar.gz
+echo "Extractivg the JDK..."
+tar -xf /vagrant/jdk-8-linux-x64.tar.gz
 
 sudo mkdir -p /usr/lib/jvm
 sudo mv ./jdk1.8.* /usr/lib/jvm/
