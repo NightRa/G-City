@@ -1,6 +1,7 @@
 #!/bin/sh
 
-wget -nc -P /vagrant/ http://apache.mirrors.spacedump.net/hadoop/common/stable/hadoop-2.7.2.tar.gz
+echo "Downloading Hadoop..."
+wget -nc -P /vagrant/ http://apache.mirrors.spacedump.net/hadoop/common/stable/hadoop-2.7.2.tar.gz 2> /dev/null
 
 echo EXTRACTING HADOOP
 tar -zxf /vagrant/hadoop-2.7.2.tar.gz -C .

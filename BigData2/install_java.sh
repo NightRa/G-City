@@ -11,10 +11,11 @@ sudo apt-get install curl -y
 if [ -f /vagrant/jdk-8-linux-x64.tar.gz ]; then   
     echo Using Cached JVM Archive    
 else 
-	curl -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
+	echo "Downloading the JDK..."
+	curl -sS -L --cookie "oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u77-b03/jdk-8u77-linux-x64.tar.gz -o /vagrant/jdk-8-linux-x64.tar.gz
 fi
 
-echo "Extractivg the JDK..."
+echo "Extracting the JDK..."
 tar -xf /vagrant/jdk-8-linux-x64.tar.gz
 
 sudo mkdir -p /usr/lib/jvm
