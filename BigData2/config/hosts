@@ -8,5 +8,5 @@ ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 
-37.51.23.10 master
-37.51.23.11 slave
+37.51.23.20 master
+37.51.23.21 slave
