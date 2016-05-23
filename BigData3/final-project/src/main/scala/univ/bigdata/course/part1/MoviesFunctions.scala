@@ -30,5 +30,8 @@ object MoviesFunctions {
     movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
   }
 
-  
+  def movieWithHighestAverage(movies:RDD[Movie]):Movie = {
+        getTopKMoviesAverage(movies,1)(0)
+  }
+
 }
