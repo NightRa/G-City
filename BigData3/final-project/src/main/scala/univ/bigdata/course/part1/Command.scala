@@ -1,4 +1,4 @@
-package univ.bigdata.course
+package univ.bigdata.course.part1
 
 sealed trait Command
 case object TotalMoviesAverageScore
