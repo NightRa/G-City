@@ -1,7 +1,7 @@
 package univ.bigdata.course.part1.preprocessing.internal;
 
 import univ.bigdata.course.part1.movie.Helpfulness;
-import univ.bigdata.course.part1.movie.InternalMovieReview;
+import univ.bigdata.course.part1.movie.MovieReview;
 
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -15,7 +15,7 @@ public class MovieIOInternals {
         }
     }
 
-    public static InternalMovieReview lineToReview(String line) throws IllegalArgumentException {
+    public static MovieReview lineToReview(String line) throws IllegalArgumentException {
         // We did not check the correctness of names of the fields
         String[] fields = Stream.of(line.split("\t")).map(MovieIOInternals::infoComponent).toArray(String[]::new);
 
@@ -35,7 +35,7 @@ public class MovieIOInternals {
         Helpfulness helpfulness = parseHelpfulness(helpfulnessStr);
         double score = tryOrError(() -> Double.parseDouble(scoreStr), "Invalid score: \"" + scoreStr + "\"");
 
-        return new InternalMovieReview(prodId, userId, profileName, helpfulness, score, time, summary, text);
+        return new MovieReview(prodId, userId, profileName, helpfulness, score, time, summary, text);
     }
 
     public static String infoComponent(String field) throws IllegalArgumentException {

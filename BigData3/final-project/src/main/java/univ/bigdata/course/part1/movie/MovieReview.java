@@ -1,6 +1,6 @@
 package univ.bigdata.course.part1.movie;
 
-public class InternalMovieReview {
+public class MovieReview {
 
     public final String movieId;
 
@@ -18,7 +18,7 @@ public class InternalMovieReview {
 
     public final String review;
 
-    public InternalMovieReview(String movieId, String userId, String profileName, Helpfulness helpfulness, double score, String timestamp, String summary, String review) {
+    public MovieReview(String movieId, String userId, String profileName, Helpfulness helpfulness, double score, String timestamp, String summary, String review) {
         this.movieId = movieId;
         this.userId = userId;
         this.profileName = profileName;

@@ -5,7 +5,6 @@ import org.junit.Test;
 import univ.bigdata.course.internal.MoviesFunctions;
 import univ.bigdata.course.part1.movie.Helpfulness;
 import univ.bigdata.course.part1.movie.InternalMovie;
-import univ.bigdata.course.part1.preprocessing.MovieIO;
 
 import java.io.File;
 import java.io.IOException;

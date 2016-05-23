@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import univ.bigdata.course.internal.MoviesFunctions;
 import univ.bigdata.course.part1.movie.InternalMovie;
-import univ.bigdata.course.part1.movie.Movie;
 
 import java.util.ArrayList;
 import java.util.List;

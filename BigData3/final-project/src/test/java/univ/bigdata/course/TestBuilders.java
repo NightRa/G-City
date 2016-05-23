@@ -3,7 +3,6 @@ package univ.bigdata.course;
 import univ.bigdata.course.part1.movie.Helpfulness;
 import univ.bigdata.course.part1.movie.InternalMovie;
 import univ.bigdata.course.part1.movie.InternalMovieReview;
-import univ.bigdata.course.part1.movie.Movie;
 
 import java.util.ArrayList;
 import java.util.List;
