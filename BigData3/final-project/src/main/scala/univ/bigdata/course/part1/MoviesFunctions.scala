@@ -6,10 +6,7 @@ import univ.bigdata.course.util.Doubles._
 
 import scala.reflect.ClassTag
 import scalaz.Order
-import scalaz.std.int
 import scalaz.syntax.semigroup._
-import Math._
-
 
 
 object MoviesFunctions {
@@ -54,5 +51,9 @@ object MoviesFunctions {
     movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
   }
 
+  def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Map[String, Long] = {
+    val topMovies = topKMoviesByNumReviews(movies, topK)
+    topMovies.foldLeft(Map[String, Long]())((map, movie) => map ++ Map[String, Long]((movie.movieId, movie.movieReviews.size)))
+  }
 
 }
