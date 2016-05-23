@@ -4,6 +4,10 @@ import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part1.movie.Movie
 import univ.bigdata.course.util.Doubles._
 
+import scala.reflect.ClassTag
+import scalaz.Order
+import scalaz.syntax.semigroup._
+
 object MoviesFunctions {
   // Can have as input whatever you need.
   // Examples:
@@ -20,4 +24,11 @@ object MoviesFunctions {
     else
       round(maybeMovie.head.avgScore)
   }
+
+  def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Array[Movie] = {
+    val order = Order.orderBy((movie: Movie) => movie.avgScore) |+| Order.orderBy((movie: Movie) => movie.movieId)
+    movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
+  }
+
+  
 }
