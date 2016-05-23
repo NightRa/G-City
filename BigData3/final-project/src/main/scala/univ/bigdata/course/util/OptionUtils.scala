@@ -14,9 +14,4 @@ object OptionUtils {
     Try(Integer.parseInt(str)).toOption
   }
 
-  implicit class BoolToOption(val self: Boolean) extends AnyVal {
-    def toOption[A](value: => A): Option[A] =
-      if (self) Some(value) else None
-  }
-
 }
