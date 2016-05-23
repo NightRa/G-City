@@ -6,7 +6,11 @@ import univ.bigdata.course.util.Doubles._
 
 import scala.reflect.ClassTag
 import scalaz.Order
+import scalaz.std.int
 import scalaz.syntax.semigroup._
+import Math._
+
+import org.apache.spark.api.java
 
 object MoviesFunctions {
   // Can have as input whatever you need.
@@ -34,4 +38,8 @@ object MoviesFunctions {
         getTopKMoviesAverage(movies,1)(0)
   }
 
+  def getMoviesPercentile(movies:RDD[Movie], percent:Double):Array[Movie] = {
+            val topK:Int = Math.ceil(1 - (percent / 100) * movies.count()).toInt
+            getTopKMoviesAverage(movies, topK)
+        }
 }
