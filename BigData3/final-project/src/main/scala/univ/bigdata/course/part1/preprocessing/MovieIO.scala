@@ -24,7 +24,7 @@ object MovieIO {
   def batchMovieReviews(reviews: RDD[MovieReview]): RDD[Movie] = {
     val reviewsGrouped: RDD[(String, Iterable[MovieReview])] = reviews.groupBy(_.movieId)
     reviewsGrouped.map {
-      case (id, movieReviews) => new Movie(id, SparkMain.sc.parallelize(movieReviews.toSeq))
+      case (id, movieReviews) => new Movie(id, movieReviews.toVector)
     }
   }
 }
