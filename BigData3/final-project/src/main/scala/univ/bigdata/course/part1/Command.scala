@@ -1,14 +1,14 @@
 package univ.bigdata.course.part1
 
 sealed trait Command
-case object TotalMoviesAverageScore
-case class TotalMovieAverage(productID: String)
-case class GetTopKMoviesAverage(topK: Int)
-case object MovieWithHighestAverage
-case object MostReviewedProduct
-case class ReviewCountPerMovieTopKMovies(topK: Int)
-case class MostPopularMovieReviewedByKUsers(numOfUsers: Int)
-case class MoviesReviewWordsCount(topK: Int)
-case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int)
-case class TopKHelpfulUsers(k: Int)
-case object MoviesCount
+case object TotalMoviesAverageScore extends Command
+case class TotalMovieAverage(productID: String) extends Command
+case class GetTopKMoviesAverage(topK: Int) extends Command
+case object MovieWithHighestAverage extends Command
+case object MostReviewedProduct extends Command
+case class ReviewCountPerMovieTopKMovies(topK: Int) extends Command
+case class MostPopularMovieReviewedByKUsers(numOfUsers: Int) extends Command
+case class MoviesReviewWordsCount(topK: Int) extends Command
+case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int) extends Command
+case class TopKHelpfulUsers(k: Int) extends Command
+case object MoviesCount extends Command
