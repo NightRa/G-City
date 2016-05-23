@@ -10,7 +10,7 @@ import scalaz.std.int
 import scalaz.syntax.semigroup._
 import Math._
 
-import org.apache.spark.api.java
+
 
 object MoviesFunctions {
   // Can have as input whatever you need.
@@ -19,7 +19,7 @@ object MoviesFunctions {
   //   moviesById: RDD[(String, Movie)]
 
   def totalMoviesAverageScore(movies: RDD[Movie]) = {
-    round(movies.flatMap(_.movieReviews.map(_.score)).mean())
+    Math.round(movies.flatMap(_.movieReviews.map(_.score)).mean())
   }
 
   def totalMovieAverage(moviesById: RDD[(String, Movie)], productId: String): Double = {
@@ -30,7 +30,7 @@ object MoviesFunctions {
   }
 
   def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Array[Movie] = {
-    val order = Order.orderBy((movie: Movie) => movie.avgScore) |+| Order.orderBy((movie: Movie) => movie.movieId)
+    val order = Order.orderBy((movie: Movie) => movie.avgScore).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
     movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
   }
 
@@ -48,5 +48,11 @@ object MoviesFunctions {
     val topMovie: Movie = movies.max()(order.toScalaOrdering)
     topMovie.movieId
   }
+
+  def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Array[Movie] = {
+    val order = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
+    movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
+  }
+
 
 }
