@@ -34,12 +34,19 @@ object MoviesFunctions {
     movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
   }
 
-  def movieWithHighestAverage(movies:RDD[Movie]):Movie = {
-        getTopKMoviesAverage(movies,1)(0)
+  def movieWithHighestAverage(movies: RDD[Movie]): Movie = {
+    getTopKMoviesAverage(movies, 1)(0)
   }
 
-  def getMoviesPercentile(movies:RDD[Movie], percent:Double):Array[Movie] = {
-            val topK:Int = Math.ceil(1 - (percent / 100) * movies.count()).toInt
-            getTopKMoviesAverage(movies, topK)
-        }
+  def getMoviesPercentile(movies: RDD[Movie], percent: Double): Array[Movie] = {
+    val topK: Int = Math.ceil(1 - (percent / 100) * movies.count()).toInt
+    getTopKMoviesAverage(movies, topK)
+  }
+
+  def mostReviewedProduct(movies: RDD[Movie]): String = {
+    val order = Order.orderBy((movie: Movie) => movie.movieReviews.size)
+    val topMovie: Movie = movies.max()(order.toScalaOrdering)
+    topMovie.movieId
+  }
+
 }
