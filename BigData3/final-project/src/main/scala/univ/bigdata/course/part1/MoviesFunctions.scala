@@ -56,4 +56,7 @@ object MoviesFunctions {
     topMovies.foldLeft(Map[String, Long]())((map, movie) => map ++ Map[String, Long]((movie.movieId, movie.movieReviews.size)))
   }
 
+  def mostPopularMovieReviewedByKUsers(movies:RDD[Movie], numOfUsers:Int):String = {
+      val reviewedMovies:RDD[Movie]= movies.filter(_.movieReviews.size >= numOfUsers)
+      movieWithHighestAverage(reviewedMovies).movieId
 }
