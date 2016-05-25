@@ -2,7 +2,7 @@ package univ.bigdata.course.part1
 
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.SparkMain
-import univ.bigdata.course.part1.movie.Movie
+import univ.bigdata.course.part1.movie.{Helpfulness, Movie, MovieReview}
 import univ.bigdata.course.util.Doubles._
 
 import scala.reflect.ClassTag
@@ -86,5 +86,9 @@ object MoviesFunctions {
     val topYMovies:RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies,topMovies))
     moviesReviewWordsCount(topYMovies,topWords)
   }
-  
+
+  def moviesCount(movies:RDD[Movie]):Long= {
+            movies.count()
+  }
+
 }
