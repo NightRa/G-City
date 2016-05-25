@@ -1,6 +1,7 @@
 package univ.bigdata.course.part1
 
 import org.apache.spark.rdd.RDD
+import univ.bigdata.course.SparkMain
 import univ.bigdata.course.part1.movie.Movie
 import univ.bigdata.course.util.Doubles._
 
@@ -9,6 +10,7 @@ import scalaz.Order
 import scalaz.syntax.semigroup._
 import scalaz.std.anyVal._
 import scalaz.std.string._
+
 
 object MoviesFunctions {
   // Can have as input whatever you need.
@@ -80,4 +82,9 @@ object MoviesFunctions {
     wordsCounts.sortBy(identity).take(topK)
   }
 
+  def topYMoviewsReviewTopXWordsCount(movies:RDD[Movie], topMovies:Int, topWords:Int):Array[(String, Long)]  =  {
+    val topYMovies:RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies,topMovies))
+    moviesReviewWordsCount(topYMovies,topWords)
+  }
+  
 }
