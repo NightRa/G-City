@@ -7,7 +7,8 @@ import univ.bigdata.course.util.Doubles._
 import scala.reflect.ClassTag
 import scalaz.Order
 import scalaz.syntax.semigroup._
-
+import scalaz.std.anyVal._
+import scalaz.std.string._
 
 object MoviesFunctions {
   // Can have as input whatever you need.
@@ -16,7 +17,7 @@ object MoviesFunctions {
   //   moviesById: RDD[(String, Movie)]
 
   def totalMoviesAverageScore(movies: RDD[Movie]) = {
-    Math.round(movies.flatMap(_.movieReviews.map(_.score)).mean())
+    round(movies.flatMap(_.movieReviews.map(_.score)).mean())
   }
 
   def totalMovieAverage(moviesById: RDD[(String, Movie)], productId: String): Double = {
@@ -47,8 +48,9 @@ object MoviesFunctions {
   }
 
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Array[Movie] = {
-    val order = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
-    movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
+    val order: Order[Movie] = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
+    implicit val ordering = order.toScalaOrdering
+    movies.sortBy(identity).take(topK)
   }
 
   def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Map[String, Long] = {
@@ -56,7 +58,26 @@ object MoviesFunctions {
     topMovies.foldLeft(Map[String, Long]())((map, movie) => map ++ Map[String, Long]((movie.movieId, movie.movieReviews.size)))
   }
 
-  def mostPopularMovieReviewedByKUsers(movies:RDD[Movie], numOfUsers:Int):String = {
-      val reviewedMovies:RDD[Movie]= movies.filter(_.movieReviews.size >= numOfUsers)
-      movieWithHighestAverage(reviewedMovies).movieId
+  def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): String = {
+    val reviewedMovies: RDD[Movie] = movies.filter(_.movieReviews.size >= numOfUsers)
+    movieWithHighestAverage(reviewedMovies).movieId
+  }
+
+  def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Array[(String, Long)] = {
+    val summaries: RDD[String] = movies.flatMap(_.movieReviews.map(_.review))
+
+    val words: RDD[String] = summaries.flatMap(_.split(" "))
+
+    val wordsCounts: RDD[(String, Long)] = words.map(word => (word, 1L)).reduceByKey(_ + _)
+
+    val orderByFreq: Order[(String, Long)] = Order.orderBy(_._2)
+    val orderByFreqDescending = orderByFreq.reverseOrder
+    val orderByLex: Order[(String, Long)] = Order.orderBy(_._1)
+
+    val order: Order[(String, Long)] = orderByFreqDescending |+| orderByLex
+
+    implicit val ordering = order.toScalaOrdering
+    wordsCounts.sortBy(identity).take(topK)
+  }
+
 }
