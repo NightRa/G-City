@@ -29,19 +29,19 @@ object MoviesFunctions {
       round(maybeMovie.head.avgScore)
   }
 
-  def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Array[Movie] = {
+  def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Vector[Movie] = {
     val order = Order.orderBy((movie: Movie) => movie.avgScore).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
     implicit val ordering = order.toScalaOrdering
-    movies.sortBy(identity).take(topK)
+    movies.sortBy(identity).take(topK).toVector
   }
 
   def movieWithHighestAverage(movies: RDD[Movie]): Movie = {
     getTopKMoviesAverage(movies, 1)(0)
   }
 
-  def getMoviesPercentile(movies: RDD[Movie], percent: Double): Array[Movie] = {
+  def getMoviesPercentile(movies: RDD[Movie], percent: Double): Vector[Movie] = {
     val topK: Int = Math.ceil(1 - (percent / 100) * movies.count()).toInt
-    getTopKMoviesAverage(movies, topK)
+    getTopKMoviesAverage(movies, topK).toVector
   }
 
   def mostReviewedProduct(movies: RDD[Movie]): String = {
@@ -50,10 +50,10 @@ object MoviesFunctions {
     topMovie.movieId
   }
 
-  def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Array[Movie] = {
+  def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
     val order: Order[Movie] = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
     implicit val ordering = order.toScalaOrdering
-    movies.sortBy(identity).take(topK)
+    movies.sortBy(identity).take(topK).toVector
   }
 
   def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Map[String, Long] = {
@@ -66,7 +66,7 @@ object MoviesFunctions {
     movieWithHighestAverage(reviewedMovies).movieId
   }
 
-  def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Array[(String, Long)] = {
+  def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Map[String, Long] = {
     val summaries: RDD[String] = movies.flatMap(_.movieReviews.map(_.review))
 
     val words: RDD[String] = summaries.flatMap(_.split(" "))
@@ -80,16 +80,16 @@ object MoviesFunctions {
     val order: Order[(String, Long)] = orderByFreqDescending |+| orderByLex
 
     implicit val ordering = order.toScalaOrdering
-    wordsCounts.sortBy(identity).take(topK)
+    wordsCounts.sortBy(identity).take(topK).toMap
   }
 
-  def topYMoviewsReviewTopXWordsCount(movies:RDD[Movie], topMovies:Int, topWords:Int):Array[(String, Long)]  =  {
-    val topYMovies:RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies,topMovies))
-    moviesReviewWordsCount(topYMovies,topWords)
+  def topYMoviewsReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Map[String, Long] = {
+    val topYMovies: RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies, topMovies))
+    moviesReviewWordsCount(topYMovies, topWords)
   }
 
-  def moviesCount(movies:RDD[Movie]):Long= {
-            movies.count()
+  def moviesCount(movies: RDD[Movie]): Long = {
+    movies.count()
   }
 
 }
