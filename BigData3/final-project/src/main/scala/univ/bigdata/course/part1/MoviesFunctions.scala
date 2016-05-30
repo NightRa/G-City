@@ -31,7 +31,8 @@ object MoviesFunctions {
 
   def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Array[Movie] = {
     val order = Order.orderBy((movie: Movie) => movie.avgScore).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
-    movies.sortBy(identity)(order.toScalaOrdering, implicitly[ClassTag[Movie]]).take(topK)
+    implicit val ordering = order.toScalaOrdering
+    movies.sortBy(identity).take(topK)
   }
 
   def movieWithHighestAverage(movies: RDD[Movie]): Movie = {
