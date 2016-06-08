@@ -55,6 +55,7 @@ object MoviesFunctions {
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
     //val order: Order[Movie] = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
     //implicit val ordering: Ordering[Movie] = order.toScalaOrdering
+    implicit val ordering = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
     movies.sortBy(identity).take(topK).toVector
   }
 
@@ -75,13 +76,19 @@ object MoviesFunctions {
 
     val wordsCounts: RDD[(String, Long)] = words.map(word => (word, 1L)).reduceByKey(_ + _)
 
-    val orderByFreq: Order[(String, Long)] = Order.orderBy(_._2)
-    val orderByFreqDescending = orderByFreq.reverseOrder
-    val orderByLex: Order[(String, Long)] = Order.orderBy(_._1)
+    val orderByFreq: Ordering[(String, Long)] = Ordering.by(_._2)
+    val orderByFreqDescending = orderByFreq.reverse
+    val orderByLex: Ordering[(String, Long)] = Ordering.by(_._1)
 
-    val order: Order[(String, Long)] = orderByFreqDescending |+| orderByLex
+    implicit val order = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
 
-    implicit val ordering: Ordering[(String, Long)] = order.toScalaOrdering
+    //val orderByFreq: Order[(String, Long)] = Order.orderBy(_._2)
+    //val orderByFreqDescending = orderByFreq.reverseOrder
+    //val orderByLex: Order[(String, Long)] = Order.orderBy(_._1)
+
+    //val order: Order[(String, Long)] = orderByFreqDescending |+| orderByLex
+
+    //implicit val ordering: Ordering[(String, Long)] = order.toScalaOrdering
     wordsCounts.sortBy(identity).take(topK).toMap
   }
 
