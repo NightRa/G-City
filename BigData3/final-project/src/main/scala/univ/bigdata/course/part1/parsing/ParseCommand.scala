@@ -25,7 +25,6 @@ object ParseCommand{
       case "mostReviewedProduct"              => (words.length == 1).option(MostReviewedProduct)
       case "totalMoviesAverageScore"          => (words.length == 1).option(TotalMoviesAverageScore)
       case "moviesCount"                      => (words.length == 1).option(MoviesCount)
-      case "totalMoviesAverageScore"          => (words.length == 1).option(TotalMoviesAverageScore)
       case "movieWithHighestAverage"          => (words.length == 1).option(MovieWithHighestAverage)
       case "reviewCountPerMovieTopKMovies"    =>
                                                   for {
