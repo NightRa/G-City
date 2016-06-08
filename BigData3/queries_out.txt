@@ -1,7 +1,7 @@
 getTopKMoviesAverage 2
 Movie{productId='B00004CK40', score=4.63636}
 Movie{productId='B0002IQNAG', score=4.61702}
-getTopKMoviesAverage 2
+getTopKMoviesAverage 4
 Movie{productId='B00004CK40', score=4.63636}
 Movie{productId='B0002IQNAG', score=4.61702}
 Movie{productId='B000BI1YVU', score=4.125}
@@ -118,7 +118,7 @@ Word = [any], number of occurrences [29].
 Word = [love], number of occurrences [29].
 Word = [original], number of occurrences [29].
 Word = [which], number of occurrences [29].
-topYMoviewsReviewTopXWordsCount 100 100
+topYMoviesReviewTopXWordsCount 100 100
 Word = [the], number of occurrences [1167].
 Word = [of], number of occurrences [638].
 Word = [a], number of occurrences [584].
@@ -219,7 +219,7 @@ Word = [any], number of occurrences [29].
 Word = [love], number of occurrences [29].
 Word = [original], number of occurrences [29].
 Word = [which], number of occurrences [29].
-topYMoviewsReviewTopXWordsCount 100 10
+topYMoviesReviewTopXWordsCount 100 10
 Word = [the], number of occurrences [1167].
 Word = [of], number of occurrences [638].
 Word = [a], number of occurrences [584].
@@ -249,7 +249,6 @@ User id = [A1COW0UIB5HA9J], helpfulness [1.0].
 User id = [A1FMJJKSVQDDQ], helpfulness [1.0].
 User id = [A1KP0IVWU0RQ0A], helpfulness [1.0].
 User id = [A1PG0T6MOVKXEV], helpfulness [1.0].
-
 topKHelpfullUsers 100
 User id = [A10ODC971MDHV8], helpfulness [1.0].
 User id = [A16S9Z6R8WA9JS], helpfulness [1.0].
