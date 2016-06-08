@@ -102,7 +102,6 @@ class MoviesFunctionsTest {
       scoredMovie("Mubariky", 4, 3, 10, 7)
     )
 
-
     Assert.assertEquals(expected, actual)
   }
 

@@ -1,8 +1,9 @@
 package univ.bigdata.course.part1.movie;
 
+import java.io.Serializable;
 import java.util.Optional;
 
-public final class Helpfulness {
+public final class Helpfulness implements Serializable {
     public final int thumbsUp;
     public final int total;
 
@@ -18,6 +19,25 @@ public final class Helpfulness {
     public Optional<Double> helpfulnessRatio() {
         if (total == 0) return Optional.empty();
         else return Optional.of((double) thumbsUp / total);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Helpfulness that = (Helpfulness) o;
+
+        if (thumbsUp != that.thumbsUp) return false;
+        return total == that.total;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = thumbsUp;
+        result = 31 * result + total;
+        return result;
     }
 
     @Override

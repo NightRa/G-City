@@ -30,8 +30,9 @@ object MoviesFunctions {
   }
 
   def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Vector[Movie] = {
-    val order = Order.orderBy((movie: Movie) => movie.avgScore).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
-    implicit val ordering: Ordering[Movie] = order.toScalaOrdering
+    implicit val ordering = Ordering.by((movie: Movie) => (-movie.avgScore, movie.movieId))
+   // val order = Order.orderBy((movie: Movie) => movie.avgScore).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
+   // implicit val ordering: Ordering[Movie] = order.toScalaOrdering
     movies.sortBy(identity).take(topK).toVector
   }
 
@@ -45,14 +46,15 @@ object MoviesFunctions {
   }
 
   def mostReviewedProduct(movies: RDD[Movie]): String = {
-    val order = Order.orderBy((movie: Movie) => movie.movieReviews.size)
-    val topMovie: Movie = movies.max()(order.toScalaOrdering)
+    //val order = Order.orderBy((movie: Movie) => movie.movieReviews.size)
+    val order = Ordering.by((movie: Movie) => movie.movieReviews.size)
+    val topMovie: Movie = movies.max()(order)
     topMovie.movieId
   }
 
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
-    val order: Order[Movie] = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
-    implicit val ordering: Ordering[Movie] = order.toScalaOrdering
+    //val order: Order[Movie] = Order.orderBy((movie: Movie) => movie.movieReviews.size).reverseOrder |+| Order.orderBy((movie: Movie) => movie.movieId)
+    //implicit val ordering: Ordering[Movie] = order.toScalaOrdering
     movies.sortBy(identity).take(topK).toVector
   }
 
