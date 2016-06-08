@@ -70,7 +70,7 @@ class MoviesFunctionsTest {
       movieManyReviews("movie4", 22),
       movieManyReviews("movie5", 1)
     )
-    Assert.assertEquals("movie3", mostReviewedProduct(movies))
+    Assert.assertEquals(movieManyReviews("movie3", 56), mostReviewedProduct(movies))
   }
 
   @Test
