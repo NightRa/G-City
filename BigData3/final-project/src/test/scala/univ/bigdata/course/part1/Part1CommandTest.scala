@@ -148,7 +148,7 @@ class Part1CommandTest {
   // ************ totalMoviesAverage ************
   @Test
   def totalMoviesAverageScore1 (): Unit = {
-    val expected = None
+    val expected = Some(TotalMoviesAverageScore)
     val actual = ParseCommand.parse("totalMoviesAverageScore")
     Assert.assertEquals(expected, actual)
   }
@@ -175,7 +175,7 @@ class Part1CommandTest {
   @Test
   def movieWithHighestAverage1(): Unit = {
     val expected = Some(MovieWithHighestAverage)
-    val actual = ParseCommand.parse("MovieWithHighestAverage")
+    val actual = ParseCommand.parse("movieWithHighestAverage")
     Assert.assertEquals(expected, actual)
   }
   @Test
