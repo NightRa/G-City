@@ -2,7 +2,7 @@ package univ.bigdata.course.part1
 
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.SparkMain
-import univ.bigdata.course.part1.movie.Movie
+import univ.bigdata.course.part1.movie.{Helpfulness, Movie, MovieReview}
 import univ.bigdata.course.util.Doubles._
 
 object MoviesFunctions {
@@ -72,6 +72,22 @@ object MoviesFunctions {
     wordsCounts.sortBy(identity).take(topK).toMap
   }
 
+
+  def topKHelpfullUsers(movies: RDD[Movie], topK: Int): Map[String, Double] = {
+    val reviewsByReviewer : RDD[(String, Iterable[MovieReview])] =
+      movies.flatMap(movie => movie.movieReviews)
+        .groupBy(review => review.userId)
+    val usersHelpfulness : RDD[(String, Double)] =
+      reviewsByReviewer
+        .mapValues(reviews => reviews.map(_.helpfulness))
+        .mapValues(_.fold(new Helpfulness(0,0))(Helpfulness.combine))
+        .mapValues(_.helpfulnessRatio())
+        .filter{case (userId, maybeHelpfulness) => maybeHelpfulness.isPresent}
+        .mapValues(_.get())
+
+    implicit val order : Ordering[(String, Double)] = Ordering.by{case (userId, helpfulnessRatio) => (-helpfulnessRatio, userId)}
+    usersHelpfulness.sortBy(identity).take(topK).toMap
+  }
   def topYMoviewsReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Map[String, Long] = {
     val topYMovies: RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies, topMovies))
     moviesReviewWordsCount(topYMovies, topWords)

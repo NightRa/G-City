@@ -7,6 +7,7 @@ import univ.bigdata.course.part1.MoviesFunctions
 import univ.bigdata.course.part1.movie.{Helpfulness, Movie}
 import TestBuilders._
 import MoviesFunctions._
+import org.apache.spark.rdd.RDD
 
 class MoviesFunctionsTest {
   @Test
@@ -112,27 +113,26 @@ class MoviesFunctionsTest {
   )
 
 
+
   @Test
   def testTopKHelpfullUsers1() {
-    Assert.fail("Need to implement topKHelpfullUsers!")
-    /*val helpfuls: Map[String, Double] = topKHelpfullUsers(moviesHelpers, 3)
-    val expected = Map("user2" -> 1.0, "user5" -> 2.0, "user6" -> 3.0)
-    Assert.assertEquals(helpfuls, expected)*/
+    val helpfuls: Map[String, Double] = topKHelpfullUsers(moviesHelpers, 3)
+    val expected = Map("user6" -> 9.0 / 10.0, "user5" -> 5.0 / 6.0, "user2" -> 2.0 / 3.0)
+    Assert.assertEquals(helpfuls, expected)
   }
 
   @Test
   def testTopKHelpfullUsers2() {
-    Assert.fail("Need to implement topKHelpfullUsers!")
-    /*val helpfuls = topKHelpfullUsers(moviesHelpers, 8)
+    val helpfuls = topKHelpfullUsers(moviesHelpers, 8)
     val expected = Map(
-      "user1" -> 4.0,
-      "user2" -> 1.0,
-      "user3" -> 2.0,
-      "user4" -> 3.0,
-      "user5" -> 5.0,
-      "user6" -> 5.0
+      "user6" -> 9.0 / 10.0,
+      "user5" -> 5.0 / 6.0,
+      "user2" -> 2.0 / 3.0,
+      "user1" -> 1.0 / 3.0,
+      "user4" -> 3.0 / 9.0,
+      "user3" -> 0.0 / 5.0
     )
-    Assert.assertEquals(expected, helpfuls)*/
+    Assert.assertEquals(expected, helpfuls)
   }
 
   @Test
