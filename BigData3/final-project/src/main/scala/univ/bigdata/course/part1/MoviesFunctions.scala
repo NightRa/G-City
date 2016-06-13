@@ -68,7 +68,9 @@ object MoviesFunctions {
     val orderByFreqDescending = orderByFreq.reverse
     val orderByLex: Ordering[(String, Long)] = Ordering.by(_._1)
 
-    implicit val order = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
+    implicit val order: Ordering[(String, Long)] = Ordering.by {
+      case (word, namOccurrences) => (-namOccurrences, word)
+    }
 
     wordsCounts.sortBy(identity).take(topK)
   }
