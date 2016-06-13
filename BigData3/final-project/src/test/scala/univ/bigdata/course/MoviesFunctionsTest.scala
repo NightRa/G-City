@@ -2,10 +2,10 @@ package univ.bigdata.course
 
 import org.junit.{Assert, Test}
 import univ.bigdata.course.TestBuilders._
-import univ.bigdata.course.part1.MoviesFunctions
 import univ.bigdata.course.part1.MoviesFunctions._
 import univ.bigdata.course.part1.movie.Helpfulness
 import univ.bigdata.course.util.Doubles
+import Doubles.round
 
 class MoviesFunctionsTest {
 
@@ -125,22 +125,22 @@ class MoviesFunctionsTest {
   @Test
   def testTopKHelpfullUsers1() {
     val helpfuls = topKHelpfullUsers(moviesHelpers, 3)
-    val expected = Array("user6" -> 9.0 / 10.0, "user5" -> 5.0 / 6.0, "user2" -> 2.0 / 3.0)
-    Assert.assertEquals(helpfuls, expected)
+    val expected = Array("user6" -> round(9.0 / 10.0), "user5" -> round(5.0 / 6.0), "user2" -> round(2.0 / 3.0))
+    Assert.assertEquals(expected.toVector, helpfuls.toVector)
   }
 
   @Test
   def testTopKHelpfullUsers2() {
     val helpfuls = topKHelpfullUsers(moviesHelpers, 8)
     val expected = Array(
-      "user6" -> 9.0 / 10.0,
-      "user5" -> 5.0 / 6.0,
-      "user2" -> 2.0 / 3.0,
-      "user1" -> 1.0 / 3.0,
-      "user4" -> 3.0 / 9.0,
-      "user3" -> 0.0 / 5.0
+      "user6" -> round(9.0 / 10.0),
+      "user5" -> round(5.0 / 6.0),
+      "user2" -> round(2.0 / 3.0),
+      "user1" -> round(1.0 / 3.0),
+      "user4" -> round(3.0 / 9.0),
+      "user3" -> round(0.0 / 5.0)
     )
-    Assert.assertEquals(expected, helpfuls)
+    Assert.assertEquals(expected.toVector, helpfuls.toVector)
   }
 
   @Test
