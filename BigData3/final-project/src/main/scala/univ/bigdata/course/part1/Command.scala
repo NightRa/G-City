@@ -1,5 +1,7 @@
 package univ.bigdata.course.part1
 
+case class CommandsTask(reviewsFileName: String, outputFile: String, commands: Vector[Command])
+
 sealed trait Command
 case object TotalMoviesAverageScore extends Command
 case class TotalMovieAverage(productID: String) extends Command
