@@ -11,6 +11,8 @@ case class Movie(movieId: String, movieReviews: Vector[MovieReview]) {
 
   lazy val avgScore = movieReviews.view.map(_.score).sum / movieReviews.size
 
+  def numReviews: Long = movieReviews.size
+
   override def toString: String =
     "Movie{" +
       "productId='" + movieId + '\'' +

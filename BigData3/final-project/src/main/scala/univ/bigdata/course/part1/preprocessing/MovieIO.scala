@@ -8,18 +8,16 @@ import univ.bigdata.course.part1.movie.{Movie, MovieReview}
 import univ.bigdata.course.part1.preprocessing.internal.MovieIOInternals
 
 object MovieIO {
+  def readMovies(inputFile: String): RDD[Movie] = {
+    val reviews = getMovieReviews(inputFile)
+    batchMovieReviews(reviews)
+  }
+
   @throws[IOException]
   def getMovieReviews(inputFilePath: String): RDD[MovieReview] = {
     val reviewsLines = SparkMain.sc.textFile(inputFilePath)
     reviewsLines.map(MovieIOInternals.lineToReview)
   }
-
-  /*@throws[IOException]
-  def readMoviesFunctions(inputFilePath: String): MoviesFunctions = {
-    val movieReviews = MovieIO.getMovieReviews(inputFilePath)
-    val movies = batchMovieReviews(movieReviews)
-    return new MoviesFunctions(movies)
-  }*/
 
   def batchMovieReviews(reviews: RDD[MovieReview]): RDD[Movie] = {
     val reviewsGrouped: RDD[(String, Iterable[MovieReview])] = reviews.groupBy(_.movieId)

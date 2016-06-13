@@ -1,5 +1,7 @@
 package univ.bigdata.course.part1.movie;
 
+import univ.bigdata.course.util.Doubles;
+
 import java.io.Serializable;
 import java.util.Optional;
 
@@ -18,7 +20,7 @@ public final class Helpfulness implements Serializable {
 
     public Optional<Double> helpfulnessRatio() {
         if (total == 0) return Optional.empty();
-        else return Optional.of((double) thumbsUp / total);
+        else return Optional.of(Doubles.round((double) thumbsUp / total));
     }
 
     @Override

@@ -1,0 +1,10 @@
+Spark build command:
+  - Hide global mvn.
+  In bash:   
+   - build/mvn -Pyarn -Phadoop-2.6 -Dhadoop.version=2.7.2 -DskipTests clean package
+
+Running: 
+./bin/spark-submit.cmd --class univ.bigdata.course.MainRunner \
+  --master local[*] \
+  final-project-1.0-SNAPSHOT.jar \
+  commands "C:\Users\Ilan\Programming\G-City\BigData3\commands.txt"

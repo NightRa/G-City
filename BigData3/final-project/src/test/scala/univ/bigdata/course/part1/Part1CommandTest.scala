@@ -67,13 +67,13 @@ class Part1CommandTest {
   @Test
   def topKHelpfullUsersTest1() : Unit = {
     val actual = ParseCommand.parse("topKHelpfullUsers 752")
-    val expected = Right(TopKHelpfulUsers(752))
+    val expected = Right(TopKHelpfullUsers(752))
     Assert.assertEquals(expected, actual)
   }
   @Test
   def topKHelpfullUsersTest2() : Unit = {
     val actual = ParseCommand.parse("topKHelpfullUsers 23")
-    val expected = Right(TopKHelpfulUsers(23))
+    val expected = Right(TopKHelpfullUsers(23))
     Assert.assertEquals(expected, actual)
   }
   @Test

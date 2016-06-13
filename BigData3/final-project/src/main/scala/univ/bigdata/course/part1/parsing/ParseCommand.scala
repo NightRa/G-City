@@ -64,7 +64,7 @@ object ParseCommand {
                                                   for {
                                                     _ <- assert(words.length == 2)
                                                     k <- getIntAt(1)
-                                                  } yield TopKHelpfulUsers(k)
+                                                  } yield TopKHelpfullUsers(k)
       case "topYMoviesReviewTopXWordsCount"  =>
                                                   for {
                                                     _ <- assert(words.length == 3)

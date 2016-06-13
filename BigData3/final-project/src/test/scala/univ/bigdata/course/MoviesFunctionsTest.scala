@@ -124,15 +124,15 @@ class MoviesFunctionsTest {
 
   @Test
   def testTopKHelpfullUsers1() {
-    val helpfuls: Map[String, Double] = topKHelpfullUsers(moviesHelpers, 3)
-    val expected = Map("user6" -> 9.0 / 10.0, "user5" -> 5.0 / 6.0, "user2" -> 2.0 / 3.0)
+    val helpfuls = topKHelpfullUsers(moviesHelpers, 3)
+    val expected = Array("user6" -> 9.0 / 10.0, "user5" -> 5.0 / 6.0, "user2" -> 2.0 / 3.0)
     Assert.assertEquals(helpfuls, expected)
   }
 
   @Test
   def testTopKHelpfullUsers2() {
     val helpfuls = topKHelpfullUsers(moviesHelpers, 8)
-    val expected = Map(
+    val expected = Array(
       "user6" -> 9.0 / 10.0,
       "user5" -> 5.0 / 6.0,
       "user2" -> 2.0 / 3.0,
@@ -158,7 +158,7 @@ class MoviesFunctionsTest {
     )
 
     val wordsCount = moviesReviewWordsCount(movies, 20)
-    Assert.assertEquals(20, wordsCount.keySet.size)
+    Assert.assertEquals(20, wordsCount.size)
     // Assert.assertEquals("my", iterator.next.getKey)
     // Assert.assertEquals(3L, iterator.next.getValue)
   }

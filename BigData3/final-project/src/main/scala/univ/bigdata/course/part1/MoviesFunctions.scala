@@ -11,7 +11,7 @@ object MoviesFunctions {
   //   movies: RDD[Movie]
   //   moviesById: RDD[(String, Movie)]
 
-  def totalMoviesAverageScore(movies: RDD[Movie]) = {
+  def totalMoviesAverageScore(movies: RDD[Movie]): Double = {
     round(movies.flatMap(_.movieReviews.map(_.score)).mean())
   }
 
@@ -48,9 +48,8 @@ object MoviesFunctions {
     movies.sortBy(identity).take(topK).toVector
   }
 
-  def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Map[String, Long] = {
-    val topMovies = topKMoviesByNumReviews(movies, topK)
-    topMovies.foldLeft(Map[String, Long]())((map, movie) => map ++ Map[String, Long]((movie.movieId, movie.movieReviews.size)))
+  def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Vector[(String, Long)] = {
+    topKMoviesByNumReviews(movies, topK).map(movie => (movie.movieId, movie.numReviews))
   }
 
   def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): Movie = {
@@ -58,7 +57,7 @@ object MoviesFunctions {
     movieWithHighestAverage(reviewedMovies)
   }
 
-  def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Map[String, Long] = {
+  def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Array[(String, Long)] = {
     val summaries: RDD[String] = movies.flatMap(_.movieReviews.map(_.review))
 
     val words: RDD[String] = summaries.flatMap(_.split(" "))
@@ -71,11 +70,11 @@ object MoviesFunctions {
 
     implicit val order = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
 
-    wordsCounts.sortBy(identity).take(topK).toMap
+    wordsCounts.sortBy(identity).take(topK)
   }
 
 
-  def topKHelpfullUsers(movies: RDD[Movie], topK: Int): Map[String, Double] = {
+  def topKHelpfullUsers(movies: RDD[Movie], topK: Int): Array[(String, Double)] = {
     val reviewsByReviewer : RDD[(String, Iterable[MovieReview])] =
       movies.flatMap(movie => movie.movieReviews)
         .groupBy(review => review.userId)
@@ -88,9 +87,9 @@ object MoviesFunctions {
         .mapValues(_.get())
 
     implicit val order : Ordering[(String, Double)] = Ordering.by{case (userId, helpfulnessRatio) => (-helpfulnessRatio, userId)}
-    usersHelpfulness.sortBy(identity).take(topK).toMap
+    usersHelpfulness.sortBy(identity).take(topK)
   }
-  def topYMoviewsReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Map[String, Long] = {
+  def topYMoviewsReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Array[(String, Long)] = {
     val topYMovies: RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies, topMovies))
     moviesReviewWordsCount(topYMovies, topWords)
   }
