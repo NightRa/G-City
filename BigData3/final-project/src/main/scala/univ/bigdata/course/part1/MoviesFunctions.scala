@@ -32,8 +32,10 @@ object MoviesFunctions {
   }
 
   def getMoviesPercentile(movies: RDD[Movie], percent: Double): Vector[Movie] = {
-    val topK: Int = Math.ceil(1 - (percent / 100) * movies.count()).toInt
+    val numMovies = movies.count()
+    val topK: Int = Math.ceil((1 - (percent / 100)) * numMovies).toInt
     getTopKMoviesAverage(movies, topK)
+    // TODO: Notice we do 2 queries over the data here! Kind of bad..
   }
 
   def mostReviewedProduct(movies: RDD[Movie]): Movie = {
@@ -51,9 +53,9 @@ object MoviesFunctions {
     topMovies.foldLeft(Map[String, Long]())((map, movie) => map ++ Map[String, Long]((movie.movieId, movie.movieReviews.size)))
   }
 
-  def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): String = {
+  def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): Movie = {
     val reviewedMovies: RDD[Movie] = movies.filter(_.movieReviews.size >= numOfUsers)
-    movieWithHighestAverage(reviewedMovies).movieId
+    movieWithHighestAverage(reviewedMovies)
   }
 
   def moviesReviewWordsCount(movies: RDD[Movie], topK: Int): Map[String, Long] = {

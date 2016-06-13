@@ -1,23 +1,32 @@
 package univ.bigdata.course
 
-import java.util.{Arrays, Collections}
-
 import org.junit.{Assert, Test}
+import univ.bigdata.course.TestBuilders._
 import univ.bigdata.course.part1.MoviesFunctions
-import univ.bigdata.course.part1.movie.{Helpfulness, Movie}
-import TestBuilders._
-import MoviesFunctions._
-import org.apache.spark.rdd.RDD
+import univ.bigdata.course.part1.MoviesFunctions._
+import univ.bigdata.course.part1.movie.Helpfulness
+import univ.bigdata.course.util.Doubles
 
 class MoviesFunctionsTest {
+
+  @Test
+  def roundTest(): Unit = {
+    val input = (1.0 + 2 + 3 + 4 + 5 + 5 + 3 + 5 + 3 + 5 + 5 + 5 + 5) / (5 + 4 + 4)
+    val actual = Doubles.round(input)
+    val expected = 3.92308
+    Assert.assertEquals(expected, actual, Epsilon)
+  }
+
   @Test
   def totalMoviesAvgTest1() {
     val movie1 = scoredMovie("movie1", 1, 2, 3, 4, 5)
     val movie2 = scoredMovie("movie2", 5, 3, 5, 3)
     val movie3 = scoredMovie("movie3", 5, 5, 5, 5)
     val movies = moviesRDD(movie1, movie2, movie3)
-    val totalAvg: Double = totalMoviesAverageScore(movies)
-    Assert.assertEquals(3.92308, totalAvg, 1e-15)
+    val actualAvg = totalMoviesAverageScore(movies)
+    val expectedRealAvg = (1.0 + 2 + 3 + 4 + 5 + 5 + 3 + 5 + 3 + 5 + 5 + 5 + 5) / (5 + 4 + 4)
+    val expectedAvgRounded = Doubles.round(expectedRealAvg)
+    Assert.assertEquals(expectedAvgRounded, actualAvg, Epsilon)
   }
 
   @Test
@@ -111,7 +120,6 @@ class MoviesFunctionsTest {
     createMovieHelp("movie2", "user3", new Helpfulness(0, 5), "user4", new Helpfulness(3, 9)),
     createMovieHelp("movie3", "user5", new Helpfulness(5, 6), "user6", new Helpfulness(9, 10))
   )
-
 
 
   @Test

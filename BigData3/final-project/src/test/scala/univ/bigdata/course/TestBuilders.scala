@@ -6,6 +6,8 @@ import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part1.movie.{Helpfulness, Movie, MovieReview}
 
 object TestBuilders {
+  val Epsilon: Double = 1e-15
+
   def moviesRDD(movies: Movie*): RDD[Movie] = {
     SparkMain.sc.parallelize(movies)
   }
