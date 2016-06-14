@@ -15,8 +15,8 @@ object MoviesFunctions {
     round(movies.flatMap(_.movieReviews.map(_.score)).mean())
   }
 
-  def totalMovieAverage(moviesById: RDD[(String, Movie)], productId: String): Double = {
-    val maybeMovie: Seq[Movie] = moviesById.lookup(productId)
+  def totalMovieAverage(movies: RDD[Movie], productId: String): Double = {
+    val maybeMovie: Array[Movie] = movies.filter(_.movieId == productId).collect()
     if (maybeMovie.isEmpty) -1
     else
       round(maybeMovie.head.avgScore)

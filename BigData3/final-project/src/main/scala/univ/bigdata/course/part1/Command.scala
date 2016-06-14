@@ -23,7 +23,8 @@ case object TotalMoviesAverageScore extends Command {
 }
 case class TotalMovieAverage(productID: String) extends Command {
   override def commandName: String = s"totalMovieAverage $productID"
-  override protected def exec(movies: RDD[Movie]): String = ??? // TODO: Unspecified behavior. Sent an email.
+  override protected def exec(movies: RDD[Movie]): String =
+    s"Movies $productID average is ${Doubles.round(totalMovieAverage(movies, productID))}"
 }
 case class GetTopKMoviesAverage(topK: Int) extends Command {
   override def commandName: String = s"getTopKMoviesAverage $topK"
