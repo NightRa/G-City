@@ -22,7 +22,7 @@ object ExecuteCommands {
     val fileOutput: PrintStream = new PrintStream(new FileOutputStream(commandsTask.outputFile))
     // ------------------------------------------------------------
     // Read movies
-    val movies: RDD[Movie] = MovieIO.readMovies(inputFile)
+    val movies: RDD[Movie] = MovieIO.readMovies(inputFile).cache()
 
     val outputs: Vector[String] = commandsTask.commands.map(command => command.execute(movies))
     outputs.foreach(fileOutput.print)

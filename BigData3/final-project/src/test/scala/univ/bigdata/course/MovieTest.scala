@@ -25,7 +25,16 @@ class MovieTest {
     val movie2 = scoredMovie("Tony", 0, 0, 4, 3, 1)
     val movies = moviesRDD(movie1, movie2)
     val mostReviewedMovie = MoviesFunctions.mostPopularMovieReviewedByKUsers(movies, 6)
-    Assert.assertEquals(movie1, mostReviewedMovie)
+    Assert.assertEquals(Some(movie1), mostReviewedMovie)
+  }
+
+  @Test
+  def testMostPopularMovieReviewedByKUsers2() {
+    val movie1  = scoredMovie("Yuval", 1, 5, 3, 3, 5, 9, 10)
+    val movie2 = scoredMovie("Tony", 0, 0, 4, 3, 1)
+    val movies = moviesRDD(movie1, movie2)
+    val mostReviewedMovie = MoviesFunctions.mostPopularMovieReviewedByKUsers(movies, 10)
+    Assert.assertEquals(None, mostReviewedMovie)
   }
 
   @Test

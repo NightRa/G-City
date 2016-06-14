@@ -40,6 +40,11 @@ object ParseCommand {
       case "totalMoviesAverageScore"          => (words.length == 1).option(TotalMoviesAverageScore)
       case "moviesCount"                      => (words.length == 1).option(MoviesCount)
       case "movieWithHighestAverage"          => (words.length == 1).option(MovieWithHighestAverage)
+      case "totalMovieAverage"                =>
+                                                  for {
+                                                    _ <- assert(words.length == 2)
+                                                    movieID <- maybeIndex(words, 1)
+                                                  } yield TotalMovieAverage(movieID)
       case "reviewCountPerMovieTopKMovies"    =>
                                                   for {
                                                     _ <- assert(words.length == 2)

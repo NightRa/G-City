@@ -27,8 +27,8 @@ object MoviesFunctions {
     movies.sortBy(identity).take(topK).toVector
   }
 
-  def movieWithHighestAverage(movies: RDD[Movie]): Movie = {
-    getTopKMoviesAverage(movies, 1)(0)
+  def movieWithHighestAverage(movies: RDD[Movie]): Option[Movie] = {
+    getTopKMoviesAverage(movies, 1).headOption
   }
 
   def getMoviesPercentile(movies: RDD[Movie], percent: Double): Vector[Movie] = {
@@ -52,7 +52,7 @@ object MoviesFunctions {
     topKMoviesByNumReviews(movies, topK).map(movie => (movie.movieId, movie.numReviews))
   }
 
-  def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): Movie = {
+  def mostPopularMovieReviewedByKUsers(movies: RDD[Movie], numOfUsers: Int): Option[Movie] = {
     val reviewedMovies: RDD[Movie] = movies.filter(_.movieReviews.size >= numOfUsers)
     movieWithHighestAverage(reviewedMovies)
   }
@@ -63,10 +63,6 @@ object MoviesFunctions {
     val words: RDD[String] = summaries.flatMap(_.split(" "))
 
     val wordsCounts: RDD[(String, Long)] = words.map(word => (word, 1L)).reduceByKey(_ + _)
-
-    val orderByFreq: Ordering[(String, Long)] = Ordering.by(_._2)
-    val orderByFreqDescending = orderByFreq.reverse
-    val orderByLex: Ordering[(String, Long)] = Ordering.by(_._1)
 
     implicit val order: Ordering[(String, Long)] = Ordering.by {
       case (word, namOccurrences) => (-namOccurrences, word)
@@ -91,7 +87,7 @@ object MoviesFunctions {
     implicit val order : Ordering[(String, Double)] = Ordering.by{case (userId, helpfulnessRatio) => (-helpfulnessRatio, userId)}
     usersHelpfulness.sortBy(identity).take(topK)
   }
-  def topYMoviewsReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Array[(String, Long)] = {
+  def topYMoviesReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Array[(String, Long)] = {
     val topYMovies: RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies, topMovies))
     moviesReviewWordsCount(topYMovies, topWords)
   }

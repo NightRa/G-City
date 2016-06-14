@@ -33,7 +33,7 @@ case class GetTopKMoviesAverage(topK: Int) extends Command {
 case object MovieWithHighestAverage extends Command {
   override def commandName: String = "movieWithHighestAverage"
   override protected def exec(movies: RDD[Movie]): String =
-    s"The movie with highest average:  ${movieWithHighestAverage(movies)}"
+    s"The movie with highest average:  ${movieWithHighestAverage(movies).getOrElse("")}"
     // Notice the double space here. This is how it's in the example output.
 }
 case object MostReviewedProduct extends Command {
@@ -51,7 +51,7 @@ case class ReviewCountPerMovieTopKMovies(topK: Int) extends Command {
 case class MostPopularMovieReviewedByKUsers(numOfUsers: Int) extends Command {
   override def commandName: String = s"mostPopularMovieReviewedByKUsers $numOfUsers"
   override protected def exec(movies: RDD[Movie]): String =
-    s"Most popular movie with highest average score, reviewed by at least $numOfUsers users ${mostPopularMovieReviewedByKUsers(movies, numOfUsers).movieId}"
+    s"Most popular movie with highest average score, reviewed by at least $numOfUsers users ${mostPopularMovieReviewedByKUsers(movies, numOfUsers).map(_.movieId).getOrElse("")}"
 }
 case class MoviesReviewWordsCount(topK: Int) extends Command {
   override def commandName: String = s"moviesReviewWordsCount $topK"
@@ -64,7 +64,7 @@ case class MoviesReviewWordsCount(topK: Int) extends Command {
 case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int) extends Command {
   override def commandName: String = s"topYMoviesReviewTopXWordsCount $topMovies $topWords"
   override protected def exec(movies: RDD[Movie]): String = {
-    topYMoviewsReviewTopXWordsCount(movies, topMovies, topWords).map {
+    topYMoviesReviewTopXWordsCount(movies, topMovies, topWords).map {
       case (word, namOccurrences) => s"Word = [$word], number of occurrences [$namOccurrences]."
     }.mkString("\n")
   }

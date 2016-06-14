@@ -92,7 +92,7 @@ class MoviesFunctionsTest {
         scoredMovie("Ilan", 10, 10, 10, 10),
         scoredMovie("Charlie", 5, 5, 5)
       )
-    val expected = scoredMovie("Ilan", 10, 10, 10, 10)
+    val expected = Some(scoredMovie("Ilan", 10, 10, 10, 10))
     Assert.assertEquals(expected, movieWithHighestAverage(movies))
   }
 
