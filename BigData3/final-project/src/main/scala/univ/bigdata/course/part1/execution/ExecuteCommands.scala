@@ -10,7 +10,7 @@ import univ.bigdata.course.part1.preprocessing.MovieIO
 
 object ExecuteCommands {
   def execute(commandsTask: CommandsTask): Unit = {
-    // Check if files exist & Create output stream.
+    // Check if files exist
     val inputFile = commandsTask.reviewsFileName
 
     val inputPath = Paths.get(inputFile)
@@ -19,16 +19,19 @@ object ExecuteCommands {
     if (!Files.exists(inputPath)) sys.error(s"Input file $inputPath doesn't exist")
     if (!Files.exists(outputPath)) sys.error(s"Output file $outputPath doesn't exist")
 
-    val fileOutput: PrintStream = new PrintStream(new FileOutputStream(commandsTask.outputFile))
     // ------------------------------------------------------------
     // Read movies
     val movies: RDD[Movie] = MovieIO.readMovies(inputFile).cache()
+    movies.count() // Force the computation so that the parallel submissions will share.
 
-    val outputs: Vector[String] = commandsTask.commands.map(command => command.execute(movies))
-    outputs.foreach(fileOutput.print)
+    val outputs = commandsTask.commands.par.map(command => command.execute(movies)).toVector
 
     // ------------------------------------------------------------
-    // Finilize
+    // Write to file.
+    val fileOutput: PrintStream = new PrintStream(new FileOutputStream(commandsTask.outputFile))
+
+    outputs.foreach(fileOutput.print)
+
     fileOutput.close()
   }
 }

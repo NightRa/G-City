@@ -9,7 +9,7 @@ import univ.bigdata.course.part1.parsing.ParseCommand
 import scala.collection.JavaConverters._
 
 object SparkMain {
-  lazy val conf = new SparkConf().setAppName("Big Data HW3").setMaster("local")
+  lazy val conf = new SparkConf().setAppName("Big Data HW3").setMaster("local[*]")
   lazy val sc = new SparkContext(conf)
 
   def init(): Unit = {
@@ -50,6 +50,9 @@ object SparkMain {
       case _ =>
         invalidArgsError(args)
     }
+
+    // TODO: Don't forget to remove this line before submission.
+    readLine()
 
   }
 
