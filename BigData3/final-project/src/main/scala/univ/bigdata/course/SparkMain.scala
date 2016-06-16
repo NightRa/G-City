@@ -5,6 +5,7 @@ import java.nio.file.{Files, Paths}
 import org.apache.spark.{SparkConf, SparkContext}
 import univ.bigdata.course.part1.execution.ExecuteCommands
 import univ.bigdata.course.part1.parsing.ParseCommand
+import univ.bigdata.course.part2.{ParseRecommendation, Recommendation}
 
 import scala.collection.JavaConverters._
 
@@ -36,8 +37,13 @@ object SparkMain {
         }
       case "recommend" =>
         if (args.length != 2) invalidArgsError(args)
-        val recommendFileName = args(1)
-        ???
+        val recommendFileName = Paths.get(args(1))
+        val lines = Files.readAllLines(recommendFileName) // Read lines, Can throw error here
+        val recommendTaskO = ParseRecommendation.parseRecommendationTask(lines.asScala)
+        recommendTaskO match {
+          case Some(task) => Recommendation.execute(task)
+          case None => sys.error("Invalid recommend input file format")
+        }
       case "map" =>
         if (args.length != 3) invalidArgsError(args)
         val trainFile = args(1)

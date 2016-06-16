@@ -20,6 +20,10 @@ public class MovieReview implements Serializable {
 
     public final String review;
 
+    public MovieReview addToScore(double delta) {
+        return new MovieReview(movieId, userId, profileName, helpfulness, score + delta, timestamp, summary, review);
+    }
+
     public MovieReview(String movieId, String userId, String profileName, Helpfulness helpfulness, double score, String timestamp, String summary, String review) {
         this.movieId = movieId;
         this.userId = userId;

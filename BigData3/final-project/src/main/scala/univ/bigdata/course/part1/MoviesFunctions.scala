@@ -23,8 +23,8 @@ object MoviesFunctions {
   }
 
   def getTopKMoviesAverage(movies: RDD[Movie], topK: Int): Vector[Movie] = {
-    implicit val ordering = Ordering.by((movie: Movie) => (-movie.avgScore, movie.movieId))
-    movies.sortBy(identity).take(topK).toVector
+    val ordering = Ordering.by((movie: Movie) => (-movie.avgScore, movie.movieId))
+    movies.takeOrdered(topK)(ordering).toVector
   }
 
   def movieWithHighestAverage(movies: RDD[Movie]): Option[Movie] = {
@@ -45,7 +45,7 @@ object MoviesFunctions {
 
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
     implicit val ordering = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
-    movies.sortBy(identity).take(topK).toVector
+    movies.takeOrdered(topK)(ordering).toVector
   }
 
   def reviewCountPerMovieTopKMovies(movies: RDD[Movie], topK: Int): Vector[(String, Long)] = {
@@ -64,11 +64,11 @@ object MoviesFunctions {
 
     val wordsCounts: RDD[(String, Long)] = words.map(word => (word, 1L)).reduceByKey(_ + _)
 
-    implicit val order: Ordering[(String, Long)] = Ordering.by {
+    val order: Ordering[(String, Long)] = Ordering.by {
       case (word, namOccurrences) => (-namOccurrences, word)
     }
 
-    wordsCounts.sortBy(identity).take(topK)
+    wordsCounts.takeOrdered(topK)(order)
   }
 
 
@@ -84,9 +84,10 @@ object MoviesFunctions {
         .filter{case (userId, maybeHelpfulness) => maybeHelpfulness.isPresent}
         .mapValues(_.get())
 
-    implicit val order : Ordering[(String, Double)] = Ordering.by{case (userId, helpfulnessRatio) => (-helpfulnessRatio, userId)}
-    usersHelpfulness.sortBy(identity).take(topK)
+    val order : Ordering[(String, Double)] = Ordering.by{case (userId, helpfulnessRatio) => (-helpfulnessRatio, userId)}
+    usersHelpfulness.takeOrdered(topK)(order)
   }
+
   def topYMoviesReviewTopXWordsCount(movies: RDD[Movie], topMovies: Int, topWords: Int): Array[(String, Long)] = {
     val topYMovies: RDD[Movie] = SparkMain.sc.parallelize(topKMoviesByNumReviews(movies, topMovies))
     moviesReviewWordsCount(topYMovies, topWords)

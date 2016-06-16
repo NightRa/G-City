@@ -21,7 +21,7 @@ object ExecuteCommands {
 
     // ------------------------------------------------------------
     // Read movies
-    val movies: RDD[Movie] = MovieIO.readMovies(inputFile).cache()
+    val movies: RDD[Movie] = MovieIO.readMovies(inputFile).sortBy(_.movieId).cache() // Sort to guarantee consistent ordering for assigning IDs
     movies.count() // Force the computation so that the parallel submissions will share.
 
     val outputs = commandsTask.commands.par.map(command => command.execute(movies)).toVector
