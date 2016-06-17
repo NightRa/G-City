@@ -57,5 +57,4 @@ class MeanAveragePrecisionTests {
     val actualMapValue =  Map.calcMap(asRDD(rankVector1, rankVector2, rankVector3, rankVector4, rankVector5))
     Assert.assertEquals(expectedMapValue, actualMapValue, Epsilon)
   }
-  
 }
