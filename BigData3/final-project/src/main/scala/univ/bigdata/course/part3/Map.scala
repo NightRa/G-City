@@ -6,11 +6,13 @@ import scalaz.syntax.std.boolean._
 
 object Map {
   def averagePrecision (ranks : Vector[Rank]) : Option[Double] = {
-    ranks.isEmpty.option { // Can happen when intersection of ranked user movies in test set with movies in train set is empty.
+    if (ranks.isEmpty) {
+      None // Can happen when intersection of ranked user movies in test set with movies in train set is empty.
+    } else {
       val percisionVector = ranks.zipWithIndex.map {
         case (rank, index) => (index + 1).toDouble / (rank + 1).toDouble // ranks start with 0
       }
-      percisionVector.sum / percisionVector.length.toDouble
+      Some(percisionVector.sum / percisionVector.length.toDouble)
     }
   }
 
