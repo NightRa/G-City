@@ -6,6 +6,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import univ.bigdata.course.part1.execution.ExecuteCommands
 import univ.bigdata.course.part1.parsing.ParseCommand
 import univ.bigdata.course.part2.{ParseRecommendation, Recommendation}
+import univ.bigdata.course.part3.ExecuteMap
 
 import scala.collection.JavaConverters._
 
@@ -48,7 +49,7 @@ object SparkMain {
         if (args.length != 3) invalidArgsError(args)
         val trainFile = args(1)
         val testFile = args(2)
-        ???
+        ExecuteMap.execute(trainFile, testFile)
       case "pagerank" =>
         if (args.length != 2) invalidArgsError(args)
         val moviesFile = args(1)
