@@ -246,10 +246,12 @@ class LongALS private(
     val userFactors = floatUserFactors
       .mapValues(_.map(_.toDouble))
       .setName("users")
+      .localCheckpoint()
       .persist(finalRDDStorageLevel)
     val prodFactors = floatProdFactors
       .mapValues(_.map(_.toDouble))
       .setName("products")
+      .localCheckpoint()
       .persist(finalRDDStorageLevel)
     if (finalRDDStorageLevel != StorageLevel.NONE) {
       userFactors.count()

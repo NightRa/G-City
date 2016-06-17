@@ -174,6 +174,10 @@ class LongMatrixFactorizationModel @Since("0.8.0")(
     }
   }
 
+  def recommendAllProductsForAllUsers(): RDD[(Long, (Long, Double))] = {
+    LongMatrixFactorizationModel.recommendForAllMany(rank, userFeatures, productFeatures)
+  }
+
   /**
     * Recommends users to a product. That is, this returns users who are most likely to be
     * interested in a product.
@@ -268,10 +272,35 @@ object LongMatrixFactorizationModel extends Loader[LongMatrixFactorizationModel]
     * Makes recommendations for a single user (or product).
     */
   def recommend(
-                         recommendToFeatures: Array[Double],
-                         recommendableFeatures: RDD[(Long, Array[Double])],
-                         num: Int): Array[(Long, Double)] = {
+                 recommendToFeatures: Array[Double],
+                 recommendableFeatures: RDD[(Long, Array[Double])],
+                 num: Int): Array[(Long, Double)] = {
     allRecommendationsUnordered(recommendToFeatures, recommendableFeatures).top(num)(Ordering.by(_._2))
+  }
+
+  def recommendForAllMany(
+                           rank: Int,
+                           srcFeatures: RDD[(Long, Array[Double])],
+                           dstFeatures: RDD[(Long, Array[Double])]
+                         ): RDD[(Long, (Long, Double))] = {
+    val srcBlocks = blockify(rank, srcFeatures)
+    val dstBlocks = blockify(rank, dstFeatures)
+    val ratings = srcBlocks.cartesian(dstBlocks).flatMap {
+      case ((srcIds, srcFactors), (dstIds, dstFactors)) =>
+        val m = srcIds.length
+        val n = dstIds.length
+        val ratings = srcFactors.transpose.multiply(dstFactors)
+        val output = new Array[(Long, (Long, Double))](m * n)
+        var k = 0
+        ratings.foreachActive { (i, j, r) =>
+          output(k) = (srcIds(i), (dstIds(j), r))
+          k += 1
+        }
+        output.toSeq
+    }
+    ratings.sortBy {
+      case (user, (movie, rating)) => (user, -rating)
+    }
   }
 
   /**

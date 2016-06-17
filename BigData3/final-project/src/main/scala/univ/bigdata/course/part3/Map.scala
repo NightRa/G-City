@@ -5,10 +5,11 @@ import univ.bigdata.course.part3.ExecuteMap.Rank
 import scalaz.syntax.std.boolean._
 
 object Map {
-  def averagePrecision (ranks : Vector[Rank]) : Option[Double] = {
+  def averagePrecision (ranks : Array[Rank]) : Option[Double] = {
     if (ranks.isEmpty) {
       None // Can happen when intersection of ranked user movies in test set with movies in train set is empty.
     } else {
+      println(ranks.mkString("[", ",", "]"))
       val percisionVector = ranks.zipWithIndex.map {
         case (rank, index) => (index + 1).toDouble / (rank + 1).toDouble // ranks start with 0
       }
@@ -16,11 +17,12 @@ object Map {
     }
   }
 
-  def calcMap(ranks : RDD[Vector[Rank]]) : Double = {
-    val averagePrecisions = ranks.flatMap(averagePrecision).cache()
-    if (averagePrecisions.isEmpty())
+  def calcMap(ranks : Iterator[Array[Rank]]) : Double = {
+    val averagePrecisions = ranks.flatMap(averagePrecision).toSeq
+    if (averagePrecisions.isEmpty) {
       0.0
+    }
     else
-      averagePrecisions.mean()
+      averagePrecisions.sum / averagePrecisions.length
   }
 }
