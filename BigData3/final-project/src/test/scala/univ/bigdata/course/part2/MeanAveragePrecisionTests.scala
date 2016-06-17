@@ -57,5 +57,36 @@ class MeanAveragePrecisionTests {
     val actualMapValue =  Map.calcMap(asRDD(rankVector1, rankVector2, rankVector3, rankVector4, rankVector5))
     Assert.assertEquals(expectedMapValue, actualMapValue, Epsilon)
   }
+
+
+  @Test
+  def test6 : Unit = {
+    val rankVector1 = Vector()
+    val rankVector2 = Vector(1,3,4,5,6,7).map(_-1) // (1/1 + 2/3 + 3/4 + 4/5 + 5/6 + 6/7)/6
+    val rankVector3 = Vector()
+    val rankVector4 = Vector()
+    val rankVector5 = Vector()
+    val rankVector6 = Vector()
+    val rankVector7 = Vector(1).map(_-1) // 1/1
+    val rankVector8 = Vector()
+    val expectedMapValue = (0.817857143 + 1.0) / 2.0
+    val actualMapValue =  Map.calcMap(asRDD(rankVector1, rankVector2, rankVector3, rankVector4, rankVector5, rankVector6, rankVector7, rankVector8))
+    Assert.assertEquals(expectedMapValue, actualMapValue, Epsilon)
+  }
+
+  @Test
+  def test7 : Unit = {
+    val expectedMapValue = 0.0
+    val actualMapValue =  Map.calcMap(asRDD())
+    Assert.assertEquals(expectedMapValue, actualMapValue, Epsilon)
+  }
+
+  @Test
+  def test8 : Unit = {
+    val rankVector1 = Vector(1, 1000000000).map(_-1)  // (1/1 + 2/1000000000)
+    val expectedMapValue = 0.500000001
+    val actualMapValue =  Map.calcMap(asRDD(rankVector1))
+    Assert.assertEquals(expectedMapValue, actualMapValue, Epsilon)
+  }
   
 }
