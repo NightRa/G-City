@@ -8,3 +8,4 @@ hw1/queries_out.txt
 *.tar.gz
 files/
 dependency-reduced-pom.xml
+BigData3/HugeDataset/

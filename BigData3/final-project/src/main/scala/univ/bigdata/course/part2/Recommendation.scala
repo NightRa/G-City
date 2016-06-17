@@ -3,10 +3,9 @@ package univ.bigdata.course.part2
 import java.io.{FileOutputStream, PrintStream}
 import java.security.MessageDigest
 
-import com.github.fommil.netlib.BLAS.{getInstance => blas}
-import org.apache.spark.mllib.recommendation.{ALS, MatrixFactorizationModel, Rating}
+import org.apache.spark.ml.recommendation.ALS.Rating
+import org.apache.spark.mllib.{LongALS, LongMatrixFactorizationModel}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.storage.StorageLevel
 import univ.bigdata.course.part1.movie.MovieReview
 import univ.bigdata.course.part1.preprocessing.MovieIO
 
@@ -18,29 +17,24 @@ case class Recommendation(userName: String, recommendations: Array[String]) {
 }
 
 object Recommendation {
-
-
-  val rank: Int = 10
-  val iterations: Int = 500
+  val rank: Int = 75
+  val iterations: Int = 10
   val numRecommendations: Int = 10
 
-  def createRatings(reviews: RDD[MovieReview], movieIDs: RDD[(String, Long)], userIDs: RDD[(String, Long)]): RDD[Rating] = {
+  def createRatings(reviews: RDD[MovieReview], movieIDs: RDD[(String, Long)], userIDs: RDD[(String, Long)]): RDD[Rating[Long]] = {
     val ratings =
       reviews.map(r => (r.movieId, r)).join(movieIDs).map {
-        case (movieIDstr, (r, movieID)) => (r.userId, (r, movieID.toInt))
+        case (movieIDstr, (r, movieID)) => (r.userId, (r, movieID))
       }.join(userIDs).map {
-        case (userIDstr, ((r, movieID), userID)) => Rating(userID.toInt, movieID, r.score)
+        case (userIDstr, ((r, movieID), userID)) => Rating(userID, movieID, r.score.toFloat)
       }
 
     ratings
   }
 
-  def als(ratings: RDD[Rating]): MatrixFactorizationModel = {
+  def als(ratings: RDD[Rating[Long]]): LongMatrixFactorizationModel = {
     // blocks, blocks, rank, iterations, lambda, false, 1.0
-    val model = new ALS().setRank(rank).setIterations(iterations)
-      // .setLambda(1.0)
-      .setIntermediateRDDStorageLevel(StorageLevel.MEMORY_ONLY).setFinalRDDStorageLevel(StorageLevel.MEMORY_ONLY)
-      .run(ratings)
+    val model = new LongALS().setRank(rank).setIterations(iterations).run(ratings)
     model
   }
 
@@ -61,18 +55,21 @@ object Recommendation {
         val avgScore = movie.avgScore
         movie.copy(movieReviews = movie.movieReviews.map(_.addToScore(-avgScore)))
       }
-    }.cache()
+    }
 
-    val normalizedReviews = normalizedMovies.flatMap(_.movieReviews).cache()
-    val userIDs: RDD[(String, Long)] = normalizedReviews.map(_.userId).distinct().sortBy(identity).zipWithIndex().cache()
-    val movieIDs: RDD[(String, Long)] = normalizedReviews.map(_.movieId).distinct().sortBy(identity).zipWithIndex().cache()
-    val reverseMovieIDs: RDD[(Long, String)] = movieIDs.map(_.swap).cache() // Check if the cache here degrades performance.
+    val normalizedReviews = normalizedMovies.coalesce(8, shuffle = true).flatMap(_.movieReviews).cache()
+    val userIDs: RDD[(String, Long)] = // normalizedReviews.map(_.userId).distinct().sortBy(identity).zipWithIndex().cache()
+      normalizedReviews.map(r => (r.userId, toID(r.userId))).distinct(8).cache()
+    // val movieIDs: RDD[(String, Long)] = normalizedReviews.map(_.movieId).distinct().sortBy(identity).zipWithIndex().cache()
+    val reverseMovieIDs: RDD[(Long, String)] = // movieIDs.map(_.swap).cache() // Check if the cache here degrades performance.
+      normalizedReviews.map(r => (toID(r.movieId), r.movieId)).distinct(8).cache()
 
     // Finished preparation
     // Train using ALS
 
-    val ratings: RDD[Rating] = createRatings(normalizedReviews, movieIDs, userIDs)
-    val model: MatrixFactorizationModel = als(ratings)
+    val ratings: RDD[Rating[Long]] = // createRatings(normalizedReviews, movieIDs, userIDs)
+      normalizedReviews.map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat))
+    val model: LongMatrixFactorizationModel = als(ratings)
 
     // Get recommendations
 
@@ -81,10 +78,10 @@ object Recommendation {
       case (userName, None) =>
         println(s"=====================================================================\n\n\n\n\nPROBLEM: User not found: $userName\n\n\n\n=====================================================================")
         (userName, Array.fill(rank)(0.0))
-      case (userName, Some(userID)) => (userName, model.userFeatures.lookup(userID.toInt).head) // We know the user is in the input => the user is in the model.
+      case (userName, Some(userID)) => (userName, model.userFeatures.lookup(userID).head) // We know the user is in the input => the user is in the model.
     }
     val userRecommendations: Seq[Recommendation] = userVectors.map {
-      case (userName, userVector) => Recommendation(userName, recommend(userVector, model.productFeatures, numRecommendations).map {
+      case (userName, userVector) => Recommendation(userName, LongMatrixFactorizationModel.recommend(userVector, model.productFeatures, numRecommendations).map {
         case (movieID, rating) => reverseMovieIDs.lookup(movieID).head // Every movie in the model should have come from the input.
       })
     }
@@ -95,19 +92,6 @@ object Recommendation {
     userRecommendations.foreach(fileOutput.print)
 
     fileOutput.close()
-  }
-
-  // ------------------------------------------------------------------
-
-
-  def recommend(recommendToFeatures: Array[Double],
-                recommendableFeatures: RDD[(Int, Array[Double])],
-                num: Int): Array[(Int, Double)] = {
-
-    val scored = recommendableFeatures.map { case (id, features) =>
-      (id, blas.ddot(features.length, recommendToFeatures, 1, features, 1))
-    }
-    scored.top(num)(Ordering.by(_._2))
   }
 
   // ------------------------------------------------------------------
