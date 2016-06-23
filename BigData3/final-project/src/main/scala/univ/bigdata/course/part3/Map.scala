@@ -2,6 +2,7 @@ package univ.bigdata.course.part3
 
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part3.ExecuteMap.Rank
+
 import scalaz.syntax.std.boolean._
 
 object Map {
