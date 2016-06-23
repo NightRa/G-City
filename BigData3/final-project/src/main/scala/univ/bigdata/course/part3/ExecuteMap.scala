@@ -1,5 +1,6 @@
 package univ.bigdata.course.part3
 
+import java.io.{BufferedWriter, FileWriter}
 import java.nio.file.{Files, Paths}
 
 import org.apache.spark.ml.recommendation.ALS.Rating
@@ -9,8 +10,21 @@ import univ.bigdata.course.SparkMain
 import univ.bigdata.course.part1.movie.MovieReview
 import univ.bigdata.course.part1.preprocessing.MovieIO
 import univ.bigdata.course.part2.Recommendation._
+import univ.bigdata.course.part2.TestedUser
 
 object ExecuteMap {
+
+ // val pathName = "C:\\Users\\Yuval\\Desktop\\Output.txt"
+  //val writer = new FileWriter(pathName, true);
+  def safePrint(value : String) = {
+    println(value)
+   // val path = Paths.get(pathName)
+    //if (!Files.exists(path))
+    //  Files.createFile(path)
+   // writer.write(value)
+   // writer.write('\n')
+   // writer.flush()
+  }
 
   type UserId = String
   type Rank = Int
@@ -26,20 +40,31 @@ object ExecuteMap {
     // ------------------------------------------------------------
     // Read movies
 
-
-    val Array(reviews, testReviews) = MovieIO.getMovieReviews(moviesTrainPath).randomSplit(Array(0.9, 0.1))
+    //val reviews = MovieIO.getMovieReviews(moviesTrainPath)
+    //val testReviews = MovieIO.getMovieReviews(moviesTestPath)
+    val Array(reviews, testReviews) = MovieIO.getMovieReviews(moviesTrainPath).randomSplit(Array(0.5, 0.5))
     val normalizedReviews = normalizeReviews(reviews).cache()
     val model = trainModel(normalizedReviews)
 
-    val usersMovies = /*MovieIO.getMovieReviews(moviesTestPath)*/testReviews.filter(_.score >= 3.0).map(r => (toID(r.userId), toID(r.movieId)))
-    val ranks: Iterator[Array[Rank]] = relevantRankLists(model, usersMovies)
+    val watchedMovies =
+      reviews
+        .groupBy(r => toID(r.userId))
+        .mapValues(_.map(r => toID(r.movieId)).toSeq)
+    val moviesToTest =
+      testReviews.groupBy(r => toID(r.userId))
+        .mapValues(_.filter(r => r.score >= 3.0))
+        .mapValues(_.map(r => toID(r.movieId)).toSeq)
+    val testedUsers =
+      watchedMovies
+        .join(moviesToTest)
+        .map{ case (userId,(seenMovies,unseenMovies)) => TestedUser(userId,seenMovies,unseenMovies)}
 
-
+    val ranks: Iterator[Array[Rank]] = relevantRankLists(model, testedUsers)
 
     val mapResult = Map.calcMap(ranks)
-    println("============================================================\n\n\n\n")
-    println(s"MAP Result: $mapResult")
-    println("\n\n\n\n============================================================")
+    safePrint("============================================================\n\n\n\n")
+    safePrint(s"MAP Result: $mapResult")
+    safePrint("\n\n\n\n============================================================")
 
   }
 
@@ -51,28 +76,27 @@ object ExecuteMap {
     model
   }
 
-  def userRanks(user: Long, model: LongMatrixFactorizationModel, relevantMovies: Seq[Long]): Array[Rank] = {
-    val userFeaturesO = model.userFeatures.lookup(user).headOption
+  def userRanks(model: LongMatrixFactorizationModel, user: TestedUser): Array[Rank] = {
+    val userFeaturesO = model.userFeatures.lookup(user.userId).headOption
     userFeaturesO match {
       case None => Array.empty
       case Some(userFeatures) =>
-        val allRecommendations: RDD[Ranking] =
-          LongMatrixFactorizationModel.allRecommendations(userFeatures, model.productFeatures).zipWithIndex().map {
-            case ((movieID, rating), ranking) => Ranking(user, movieID, rating.toFloat, ranking.toInt)
-          }
-        val relevantRankings = allRecommendations.map(r => (r.movie, r)).join(SparkMain.sc.parallelize(relevantMovies).map((_, ()))).map {
-          case (_user, (ranking, _)) => ranking
-        }
-        relevantRankings.map(_.ranking).collect().sorted
+          LongMatrixFactorizationModel
+            .allRecommendations(userFeatures, model.productFeatures)
+            .filter{case (movieID, rating) => !user.moviesSeen.contains(movieID)} // Crusial! -- Ilan's mistake :O
+            .zipWithIndex()
+            .map {
+            case ((movieID, rating), ranking) => Ranking(user.userId, movieID, rating.toFloat, ranking.toInt)
+          }.filter(ranking => user.unknownRecommendedMovies.contains(ranking.movie))
+            .map(_.ranking)
+            .collect()
+            .sorted
     }
   }
 
-  def relevantRankLists(model: LongMatrixFactorizationModel, userMovies: RDD[(Long, Long)]): Iterator[Array[Int]] = {
-    val userGroupedMovies = userMovies.groupByKey.cache()
-    val users: Iterator[(Long, Iterable[Long])] = userGroupedMovies.toLocalIterator
-
-    users.map {
-      case (user, relevantMovies) => userRanks(user, model, relevantMovies.toSeq)
-    }
+  def relevantRankLists(model: LongMatrixFactorizationModel, users : RDD[TestedUser]): Iterator[Array[Rank]] = {
+    users
+      .toLocalIterator      // is that OK? If not throws an exception: RDD inside RDD
+      .map(testedUser => userRanks(model, testedUser))
   }
 }

@@ -37,6 +37,7 @@ object SparkMain {
           case Right(commandsTask) => ExecuteCommands.execute(commandsTask) // Execute commands task
         }
       case "recommend" =>
+
         if (args.length != 2) invalidArgsError(args)
         val recommendFileName = Paths.get(args(1))
         val lines = Files.readAllLines(recommendFileName) // Read lines, Can throw error here
