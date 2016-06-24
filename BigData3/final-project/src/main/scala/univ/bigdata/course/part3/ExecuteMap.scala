@@ -14,17 +14,16 @@ import univ.bigdata.course.part2.TestedUser
 
 object ExecuteMap {
 
- // val pathName = "C:\\Users\\Yuval\\Desktop\\Output.txt"
-  //val writer = new FileWriter(pathName, true);
+  /*val pathName = "C:\\Users\\Yuval\\Desktop\\Output.txt"
+  val writer = new FileWriter(pathName, true);
   def safePrint(value : String) = {
     println(value)
-   // val path = Paths.get(pathName)
-    //if (!Files.exists(path))
-    //  Files.createFile(path)
-   // writer.write(value)
-   // writer.write('\n')
-   // writer.flush()
-  }
+    val path = Paths.get(pathName)
+    if (!Files.exists(path))
+      Files.createFile(path)
+    writer.write(value + '\n')
+    writer.flush()
+  }*/
 
   type UserId = String
   type Rank = Int
@@ -42,7 +41,14 @@ object ExecuteMap {
 
     //val reviews = MovieIO.getMovieReviews(moviesTrainPath)
     //val testReviews = MovieIO.getMovieReviews(moviesTestPath)
-    val Array(reviews, testReviews) = MovieIO.getMovieReviews(moviesTrainPath).randomSplit(Array(0.5, 0.5))
+    val trainRatio = 0.6
+    val allReviews = MovieIO.getMovieReviews(moviesTrainPath)
+    val allReviewsSorted = allReviews.sortBy(_.timestamp).zipWithIndex()
+    val amount = allReviews.count()
+    val trainAmount = (amount * trainRatio).toLong
+    val reviews = allReviewsSorted.filter(_._2 <= trainAmount).map(_._1)
+    val testReviews = allReviewsSorted.filter(_._2 > trainAmount).map(_._1)
+   // val Array(reviews, testReviews) = MovieIO.getMovieReviews(moviesTrainPath).randomSplit(Array(0.5, 0.5))
     val normalizedReviews = normalizeReviews(reviews).cache()
     val model = trainModel(normalizedReviews)
 
@@ -62,9 +68,9 @@ object ExecuteMap {
     val ranks: Iterator[Array[Rank]] = relevantRankLists(model, testedUsers)
 
     val mapResult = Map.calcMap(ranks)
-    safePrint("============================================================\n\n\n\n")
-    safePrint(s"MAP Result: $mapResult")
-    safePrint("\n\n\n\n============================================================")
+    println("============================================================\n\n\n\n")
+    println(s"MAP Result: $mapResult")
+    println("\n\n\n\n============================================================")
 
   }
 

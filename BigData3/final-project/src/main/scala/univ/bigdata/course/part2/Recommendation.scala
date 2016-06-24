@@ -9,8 +9,10 @@ import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part1.movie.MovieReview
 import univ.bigdata.course.part1.preprocessing.MovieIO
 import univ.bigdata.course.part2.Recommendation._
+import univ.bigdata.course.part3.ExecuteMap
+import univ.bigdata.course.part3.ExecuteMap._
 
-case class Recommendation(userName: String, recommendations: Array[String]) {
+case class Recommendation(userName: String, recommendations: Array[String]) extends Serializable{
   override def toString: String =
     s"Recommendations for $userName:" + recommendations.zipWithIndex.map {
       case (movieID, i) => s"${i + 1}. $movieID"
@@ -53,36 +55,97 @@ object Recommendation {
   }
 
   def execute(task: RecommendationTask) = {
+    type MovieID = Long
+    type UserID = Long
+    type UserName = String
+    type MovieName = String
+    type MovieScore = Double
+    type Index = Long
+
     val reviewsInputFile = task.inputFile
+    val reviews : RDD[MovieReview] = MovieIO.getMovieReviews(reviewsInputFile)
+    val normalizedReviews : RDD[MovieReview] = normalizeReviews(reviews).cache()
 
-    val reviews = MovieIO.getMovieReviews(reviewsInputFile)
-    val normalizedReviews = normalizeReviews(reviews).cache()
-
-    val reverseMovieIDs: RDD[(Long, String)] = normalizedReviews.map(r => (toID(r.movieId), r.movieId)).distinct(8).cache()
+    val movieNames: RDD[(Index, Iterable[MovieName])] = // sorted by Id(movieName)
+      normalizedReviews
+        .groupBy(_.movieId)
+        .map(_._1)
+        .sortBy(toID)
+        .zipWithIndex()
+        .groupBy(_._2)
+        .mapValues(_.map(_._1))
+        .distinct(8)
 
     // Finished preparation
+    val ratings: RDD[Rating[Long]] =
+      normalizedReviews
+        .map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat))
+        .cache()
 
-    val ratings: RDD[Rating[Long]] = normalizedReviews.map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat)).cache()
     // Train using ALS
     val model: LongMatrixFactorizationModel = als(ratings)
 
-
     // Get recommendations
+    val moviesSeenAlready: Map[UserID, Seq[MovieID]] =
+      normalizedReviews
+        .filter(review => task.users.contains(review.userId))
+        .groupBy(r => toID(r.userId))
+        .mapValues(_.map(_.movieId).map(toID).toSeq)
+        .toLocalIterator
+        .toMap
 
-    val taskUserIDs: Seq[(String, Long)] = task.users.view.map(userName => (userName, toID(userName)))
-    val userVectors: Seq[(String, Array[Double])] = taskUserIDs.map {
-      case (userName, userID) => (userName, model.userFeatures.lookup(userID).headOption match {
-        case None => Array.fill(rank)(0.0)
-        case Some(features) => features
-      })
+    val userVectors: Seq[(UserName, Array[MovieScore])] =
+      task.users.view.map(userName => {
+          val userId = toID(userName)
+          val featureArray =
+            model.userFeatures.lookup(userId).headOption match {
+              case None => Array.fill(rank)(0.0)
+              case Some(features) => features
+            }
+          (userName, featureArray)
+    })
+
+    val userRecommendations: Seq[Recommendation] = {
+      userVectors.map {
+        case (userName, userFeatureArray) => {
+          val allRecommendations : RDD[(MovieID, MovieScore)] =
+            LongMatrixFactorizationModel
+            .allRecommendations(userFeatureArray, model.productFeatures)
+            .distinct(8)
+              .sortBy{case (movieId, score) => movieId}
+
+          val groupedRecommendations : RDD[(Index, Iterable[(MovieID, MovieScore)])] =
+            allRecommendations
+            .zipWithIndex()
+            .groupBy(_._2)
+            .mapValues(_.map(_._1))
+
+          val joinedMovies: RDD[(Index, (Iterable[(MovieID, MovieScore)], Iterable[MovieName]))] =
+            groupedRecommendations
+              .join(movieNames)
+
+          val scoredMovieNames : RDD[(MovieName, MovieScore)]=
+            joinedMovies
+            .map(_._2)
+            .map(tupIterator => (tupIterator._1.head, tupIterator._2.head))
+            .map { case ((movieID, movieScore), movieName) => (movieName, movieScore)}
+
+          val validMovies  : RDD[(MovieName, MovieScore)] =
+            scoredMovieNames
+            .filter{case (movieName, movieScore) =>
+                      !moviesSeenAlready.get(toID(userName)).map(_.contains(toID(movieName))).getOrElse(false)}
+
+          val recommendations: Array[String] =
+            validMovies
+                .sortBy{case (movieName, movieScore) => -movieScore}
+                .map{case (movieName, movieScore) => movieName}
+                .collect()
+                .take(numRecommendations)
+
+          Recommendation(userName, recommendations)
+        }
+      }
     }
-
-    val userRecommendations: Seq[Recommendation] = userVectors.map {
-      case (userName, userVector) => Recommendation(userName, LongMatrixFactorizationModel.recommend(userVector, model.productFeatures, numRecommendations).map {
-        case (movieID, rating) => reverseMovieIDs.lookup(movieID).head // Every movie in the model should have come from the input.
-      })
-    }
-
     // Output recommendations
     val fileOutput: PrintStream = new PrintStream(new FileOutputStream(task.outputFile))
 

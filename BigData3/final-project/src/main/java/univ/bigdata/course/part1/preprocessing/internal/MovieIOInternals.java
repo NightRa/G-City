@@ -28,13 +28,13 @@ public class MovieIOInternals {
         String profileName = fields[2];
         String helpfulnessStr = fields[3];
         String scoreStr = fields[4];
-        String time = fields[5];
+        String timeStr = fields[5];
         String summary = fields[6];
         String text = fields[7];
 
         Helpfulness helpfulness = parseHelpfulness(helpfulnessStr);
         double score = tryOrError(() -> Double.parseDouble(scoreStr), "Invalid score: \"" + scoreStr + "\"");
-
+        long time = tryOrError(() -> Long.parseLong(timeStr), "Invalid time: \"" + timeStr + "\"");
         return new MovieReview(prodId, userId, profileName, helpfulness, score, time, summary, text);
     }
 

@@ -14,7 +14,7 @@ public class MovieReview implements Serializable {
 
     public final double score;
 
-    public final String timestamp;
+    public final Long timestamp;
 
     public final String summary;
 
@@ -24,7 +24,7 @@ public class MovieReview implements Serializable {
         return new MovieReview(movieId, userId, profileName, helpfulness, score + delta, timestamp, summary, review);
     }
 
-    public MovieReview(String movieId, String userId, String profileName, Helpfulness helpfulness, double score, String timestamp, String summary, String review) {
+    public MovieReview(String movieId, String userId, String profileName, Helpfulness helpfulness, double score, Long timestamp, String summary, String review) {
         this.movieId = movieId;
         this.userId = userId;
         this.profileName = profileName;

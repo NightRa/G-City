@@ -10,7 +10,7 @@ object Map {
     if (ranks.isEmpty) {
       None // Can happen when intersection of ranked user movies in test set with movies in train set is empty.
     } else {
-      ExecuteMap.safePrint(ranks.mkString("[", ",", "]"))
+      println(ranks.mkString("[", ",", "]"))
       val percisionVector = ranks.zipWithIndex.map {
         case (rank, index) => (index + 1).toDouble / (rank + 1).toDouble // ranks start with 0
       }
