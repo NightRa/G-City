@@ -9,7 +9,7 @@ import org.apache.spark.graphx._
 import univ.bigdata.course.part2.Recommendation._
 
 
-class pageRank {
+object PageRank {
   def buildGraph(inputFile: String): Graph[String, Nothing] = {
     val reviews: RDD[MovieReview] = MovieIO.getMovieReviews(inputFile).cache
     val userIDs: RDD[String] = reviews.map(_.userId).distinct(8).cache()
@@ -26,28 +26,32 @@ class pageRank {
       usersByMovieReview.map {
         users => users.flatMap(user1 => users.map(user2 => Edge(toID(user1), toID(user2))))
       }
-    val relationship: RDD[Edge[Nothing]] = allRelationship.flatMap(edges => edges.map(edge => edge)).distinct().filter(x => x.srcId != x.dstId)
+    val relationship: RDD[Edge[Nothing]] =
+      allRelationship
+        .flatMap(edges => edges.map(edge => edge))
+        .distinct()
+        .filter(x => x.srcId != x.dstId)
 
-    // Build an return the graph
+    // Build and return the graph
     Graph(usersVertex, relationship)
 
   }
 
-
-      def getPageRank(inputFile : String) = {
-        val topK = 100
-        val graph = buildGraph(inputFile)
-        val ranks: VertexRDD[Double] = graph.pageRank(0.0001).vertices
-        // sort by rank and then by id lexicographical order
-        val ordering : Ordering[(VertexId, Double)] = Ordering.by(vertex => (-vertex._2,vertex._1))
-        // get top 100 users after sorting
-        val topUsers: Array[(VertexId, Double)] = ranks.takeOrdered(topK)(ordering)
-        // print data in the format: User Id: userId, Rank: UserRank
-        topUsers.foreach{
-          user => println("User Id: " + user._1 + ", Rank: " + user._2)
-        }
-        println()
-
+  def execute(inputFile : String) : Unit = {
+    val topK = 100
+    val graph = buildGraph(inputFile)
+    val ranks: VertexRDD[Double] =
+      graph.pageRank(0.0001).vertices
+    // sort by rank and then by id lexicographical order
+    val ordering : Ordering[(VertexId, Double)] =
+      Ordering.by(vertex => (-vertex._2,vertex._1))
+    // get top 100 users after sorting
+    val topUsers: Array[(VertexId, Double)] = ranks.takeOrdered(topK)(ordering)
+    // print data in the format: User Id: userId, Rank: UserRank
+    topUsers.foreach{
+      user => println("User Id: " + user._1 + ", Rank: " + user._2)
+    }
+    println()
   }
 
 }

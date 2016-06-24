@@ -7,6 +7,7 @@ import univ.bigdata.course.part1.execution.ExecuteCommands
 import univ.bigdata.course.part1.parsing.ParseCommand
 import univ.bigdata.course.part2.{ParseRecommendation, Recommendation}
 import univ.bigdata.course.part3.ExecuteMap
+import univ.bigdata.course.part4.PageRank
 
 import scala.collection.JavaConverters._
 
@@ -54,7 +55,7 @@ object SparkMain {
       case "pagerank" =>
         if (args.length != 2) invalidArgsError(args)
         val moviesFile = args(1)
-        ???
+        PageRank.execute(moviesFile)
       case _ =>
         invalidArgsError(args)
     }
