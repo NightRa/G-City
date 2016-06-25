@@ -32,28 +32,29 @@ object PageRank {
       }.flatMap(edges => edges.map(edge => edge))
         .distinct()
         .filter(x => x.srcId != x.dstId)
-
       Graph(vertices, edges)
   }
 
   def execute(inputFile : String) : Unit = {
-
     val topK : Int = 100
     val graph = CreateGraph(inputFile)
-    val ranks : VertexRDD[Double] =
-      graph.pageRank(0.0001).vertices
+    val ranks = graph.pageRank(0.0001).vertices
 
     // sort by rank and then by id lexicographical order
     val ordering : Ordering[(VertexId, Double)] =
       Ordering.by(vertex => (-vertex._2, vertex._1))
+
     // get top 100 users after sorting
     val topUsers: Array[(VertexId, Double)] = ranks.takeOrdered(topK)(ordering)
+
     // print data in the format: User Id: userId, Rank: UserRank
-    topUsers.foreach{
-      user => println("Rank: " + user._2)
-    }
+
+    val asString =  topUsers.map(user => "User Id: " + graph.vertices.filter{case(id, name) => user._1 == toID(name)}.first()._2 + ", Rank: " + user._2)
+              .mkString("\n") // maybe /r/n ???????????????
+
+    println(asString)
+
     println()
   }
-
 }
 

@@ -167,5 +167,4 @@ object Recommendation {
     BigInt(bytes).toLong // take the lower 64 bits from the 256 bits.
     // Up to 2^32 unique ids.
   }
-
 }
