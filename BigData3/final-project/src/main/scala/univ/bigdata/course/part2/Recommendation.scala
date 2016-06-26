@@ -67,13 +67,13 @@ object Recommendation {
     val normalizedReviews : RDD[MovieReview] = normalizeReviews(reviews).cache()
 
     val movieNames: RDD[(Index, Iterable[MovieName])] = // sorted by Id(movieName)
-      normalizedReviews
+      normalizedReviews   // MovieID(hash) => MovieName  -- inverted hash function
         .groupBy(_.movieId)
         .map(_._1)
         .sortBy(toID)
-        .zipWithIndex()
-        .groupBy(_._2)
-        .mapValues(_.map(_._1))
+        .zipWithIndex() // RDD[MovieName] => RDD[(MovieName, Index)]
+        .groupBy(_._2)  // RDD[(Index, (MovieName, Index))]
+        .mapValues(_.map(_._1)) // RDD[(Index, MovieName)]
         .distinct(8)
 
     // Finished preparation
@@ -85,11 +85,12 @@ object Recommendation {
     // Train using ALS
     val model: LongMatrixFactorizationModel = als(ratings)
 
-    // Get recommendations
+    // Users requested to be recommended
+    // for each user requested - the movies he has already seen
     val moviesSeenAlready: Map[UserID, Seq[MovieID]] =
       normalizedReviews
         .filter(review => task.users.contains(review.userId))
-        .groupBy(r => toID(r.userId))
+        .groupBy(r => toID(r.userId))   // RDD[(UserID, MovieReview)]
         .mapValues(_.map(_.movieId).map(toID).toSeq)
         .toLocalIterator
         .toMap
@@ -112,7 +113,7 @@ object Recommendation {
             LongMatrixFactorizationModel
             .allRecommendations(userFeatureArray, model.productFeatures)
             .distinct(8)
-              .sortBy{case (movieId, score) => movieId}
+            .sortBy{case (movieId, score) => movieId}
 
           val groupedRecommendations : RDD[(Index, Iterable[(MovieID, MovieScore)])] =
             allRecommendations
@@ -139,7 +140,6 @@ object Recommendation {
             validMovies
                 .sortBy{case (movieName, movieScore) => -movieScore}
                 .map{case (movieName, movieScore) => movieName}
-                .collect()
                 .take(numRecommendations)
 
           Recommendation(userName, recommendations)
