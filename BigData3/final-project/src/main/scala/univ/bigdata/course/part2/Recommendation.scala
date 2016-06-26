@@ -149,7 +149,12 @@ object Recommendation {
     // Output recommendations
     val fileOutput: PrintStream = new PrintStream(new FileOutputStream(task.outputFile))
 
-    userRecommendations.foreach(fileOutput.print)
+    val ordering : Ordering[Recommendation] = Ordering.by(rec => (rec.userName, rec.recommendations.fold("")(_+_)))
+
+    userRecommendations
+        .sortBy(identity)(ordering)
+        .reverse
+        .foreach(fileOutput.print)
 
     fileOutput.close()
   }
