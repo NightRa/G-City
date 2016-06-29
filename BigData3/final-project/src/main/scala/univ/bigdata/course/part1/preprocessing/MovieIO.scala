@@ -2,10 +2,13 @@ package univ.bigdata.course.part1.preprocessing
 
 import java.io.IOException
 
+import org.apache.spark.ml.recommendation.ALS.Rating
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.SparkMain
 import univ.bigdata.course.part1.movie.{Movie, MovieReview}
 import univ.bigdata.course.part1.preprocessing.internal.MovieIOInternals
+import univ.bigdata.course.part2.Recommendation
+import univ.bigdata.course.part2.Recommendation.toID
 
 object MovieIO {
   def readMovies(inputFile: String): RDD[Movie] = {

@@ -20,8 +20,8 @@ case class Recommendation(userName: String, recommendations: Array[String]) exte
 }
 
 object Recommendation {
-  val rank: Int = 150
-  val iterations: Int = 15
+  val rank: Int = 50
+  val iterations: Int = 10
   val numRecommendations: Int = 10
 
   def createRatings(reviews: RDD[MovieReview], movieIDs: RDD[(String, Long)], userIDs: RDD[(String, Long)]): RDD[Rating[Long]] = {

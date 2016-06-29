@@ -2,6 +2,7 @@ package univ.bigdata.course
 
 import java.nio.file.{Files, Paths}
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
 import univ.bigdata.course.part1.execution.ExecuteCommands
 import univ.bigdata.course.part1.parsing.ParseCommand
@@ -19,6 +20,7 @@ object SparkMain {
     // Touch the lazy vals to init them.
     conf
     sc
+    Logger.getRootLogger.setLevel(Level.ERROR)
   }
 
   def main(args: Array[String]) {
