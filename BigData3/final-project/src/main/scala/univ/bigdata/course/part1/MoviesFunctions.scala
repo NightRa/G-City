@@ -6,17 +6,14 @@ import univ.bigdata.course.part1.movie.{Helpfulness, Movie, MovieReview}
 import univ.bigdata.course.util.Doubles._
 
 object MoviesFunctions {
-  // Can have as input whatever you need.
-  // Examples:
-  //   movies: RDD[Movie]
-  //   moviesById: RDD[(String, Movie)]
+  // These are ported implementations from HW1 to Spark.
 
   def totalMoviesAverageScore(movies: RDD[Movie]): Double = {
     round(movies.flatMap(_.movieReviews.map(_.score)).mean())
   }
 
   def totalMovieAverage(movies: RDD[Movie], productId: String): Double = {
-    val maybeMovie: Array[Movie] = movies.filter(_.movieId == productId).collect()
+    val maybeMovie: Array[Movie] = movies.filter(_.movieId == productId).take(1)
     if (maybeMovie.isEmpty) -1
     else
       round(maybeMovie.head.avgScore)
@@ -35,12 +32,11 @@ object MoviesFunctions {
     val numMovies = movies.count()
     val topK: Int = Math.ceil((1 - (percent / 100)) * numMovies).toInt
     getTopKMoviesAverage(movies, topK)
-    // TODO: Notice we do 2 queries over the data here! Kind of bad..
   }
 
   def mostReviewedProduct(movies: RDD[Movie]): Movie = {
     val order = Ordering.by((movie: Movie) => movie.movieReviews.size)
-    movies.max()(order)
+    movies.max()(order) // May throw, hopefully we won't get empty datasets.
   }
 
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
@@ -65,7 +61,7 @@ object MoviesFunctions {
     val wordsCounts: RDD[(String, Long)] = words.map(word => (word, 1L)).reduceByKey(_ + _)
 
     val order: Ordering[(String, Long)] = Ordering.by {
-      case (word, namOccurrences) => (-namOccurrences, word)
+      case (word, numOccurrences) => (-numOccurrences, word)
     }
 
     wordsCounts.takeOrdered(topK)(order)

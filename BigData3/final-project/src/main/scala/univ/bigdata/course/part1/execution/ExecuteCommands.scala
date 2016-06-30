@@ -13,19 +13,13 @@ object ExecuteCommands {
     // Check if files exist
     val inputFile = commandsTask.reviewsFileName
 
-    val inputPath = Paths.get(inputFile)
-    val outputPath = Paths.get(commandsTask.outputFile)
-
-    // if (!Files.exists(inputPath)) sys.error(s"Input file $inputPath doesn't exist")
-    // doesn't have to be a local file on the file system.
-    // if (!Files.exists(outputPath)) sys.error(s"Output file $outputPath doesn't exist")
-    // We create this file.
-
     // ------------------------------------------------------------
     // Read movies
     val movies: RDD[Movie] = MovieIO.readMovies(inputFile).sortBy(_.movieId).cache() // Sort to guarantee consistent ordering for assigning IDs
     movies.count() // Force the computation so that the parallel submissions will share.
 
+    // Execute each command, submit jobs in parallel.
+    // Returns a vector of resulting string outputs for each command.
     val outputs = commandsTask.commands.par.map(command => command.execute(movies)).toVector
 
     // ------------------------------------------------------------

@@ -9,11 +9,15 @@ import scalaz.syntax.traverse._
 import scalaz.syntax.std.boolean._
 
 object ParseCommand {
+  // ParseCommand parses the commands file into a CommandTask
+  // CommandTask contains a vector of commands, which is a sum of all the possible commands.
+
   def parseCommandsTask(lines: Seq[String]): Either[String, CommandsTask] = {
     lines.filter(_.nonEmpty) match {
       case Seq(inputFile, outputFile, commandsLines @ _*) =>
         for {
           commands <- parseLines(commandsLines)
+          // Parse each line individually. This is the same as map.
         } yield CommandsTask(inputFile, outputFile, commands)
       case _ =>
         Left("Invalid file length")
@@ -30,7 +34,8 @@ object ParseCommand {
 
   def parse(line : String) : Either[String, Command] = {
     val words = line.split(' ')
-    val command = words(0) // TODO: Notice we may throw an error here is invalid input!
+    if(words.length == 0) return Left(s"Bad command line: ${line}")
+    val command = words(0)
     def getIntAt (index : Int) : Option[Int] = {
       maybeIndex(words, index).flatMap(maybeConvertToInt)
     }
@@ -79,6 +84,7 @@ object ParseCommand {
       case _                                  =>  None
     }
 
+    // If failed (None), put the command on the left.
     opt.toRight(command)
   }
 }
