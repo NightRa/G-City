@@ -63,7 +63,7 @@ object SparkMain {
     }
 
     // TODO: Don't forget to remove this line before submission.
-    readLine()
+    // readLine()
 
   }
 

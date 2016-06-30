@@ -4,11 +4,10 @@ import java.io.{FileOutputStream, PrintStream}
 import java.security.MessageDigest
 
 import org.apache.spark.ml.recommendation.ALS.Rating
-import org.apache.spark.mllib.{LongALS, LongMatrixFactorizationModel, Ranking}
+import org.apache.spark.mllib.{LongALS, LongMatrixFactorizationModel}
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part1.movie.MovieReview
 import univ.bigdata.course.part1.preprocessing.MovieIO
-import univ.bigdata.course.part2.Recommendation._
 
 case class Recommendation(userName: String, recommendations: Array[String]) {
   override def toString: String =
@@ -58,20 +57,25 @@ object Recommendation {
     val reviews = MovieIO.getMovieReviews(reviewsInputFile)
     val normalizedReviews = normalizeReviews(reviews).cache()
 
-    val reverseMovieIDs: RDD[(Long, String)] = normalizedReviews.map(r => (toID(r.movieId), r.movieId)).distinct(8).cache()
+    val reverseMovieIDs: RDD[(Long, String)] =
+      normalizedReviews.map(r => (toID(r.movieId), r.movieId)).distinct(8).cache()
 
-    val userMovies: RDD[(String, Iterable[MovieReview])] = normalizedReviews.groupBy(_.userId).cache()
+    val userMovies: RDD[(String, Iterable[MovieReview])] =
+      normalizedReviews.groupBy(_.userId).cache()
 
     // Finished preparation
 
-    val ratings: RDD[Rating[Long]] = normalizedReviews.map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat)).cache()
+    val ratings: RDD[Rating[Long]] =
+      normalizedReviews.map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat)).cache()
     // Train using ALS
     val model: LongMatrixFactorizationModel = als(ratings)
 
 
     // Get recommendations
 
-    val taskUserIDs: Seq[(String, Long)] = task.users.view.map(userName => (userName, toID(userName)))
+    val taskUserIDs: Seq[(String, Long)] =
+      task.users.view.map(userName => (userName, toID(userName)))
+
     val userVectors: Seq[(String, Array[Double])] = taskUserIDs.map {
       case (userName, userID) => (userName, model.userFeatures.lookup(userID).headOption match {
         case None => Array.fill(rank)(0.0)
@@ -85,12 +89,15 @@ object Recommendation {
           rankNewMovies(
             userVector,
             model,
-            userMovies.lookup(userName).headOption.fold[Set[Long]](Set.empty)(i => i.map(r => toID(r.movieId)).toSet),
+            userMovies.lookup(userName).headOption
+              .fold[Set[Long]](Set.empty)(i => i.map(r => toID(r.movieId)).toSet),
             numRecommendations)
 
         Recommendation(userName,
           movies.map {
-            case (movieID, rating) => reverseMovieIDs.lookup(movieID).head // Every movie in the model should have come from the input.
+            case (movieID, rating) =>
+              reverseMovieIDs.lookup(movieID).head
+              // Every movie in the model should have come from the input.
           }.toArray)
     }
 
@@ -102,7 +109,10 @@ object Recommendation {
     fileOutput.close()
   }
 
-  def rankNewMovies(userVector: Array[Double], model: LongMatrixFactorizationModel, viewedMovies: Set[Long], numRecommendations: Int): Seq[(Long, Double)] = {
+  def rankNewMovies(userVector: Array[Double],
+                    model: LongMatrixFactorizationModel,
+                    viewedMovies: Set[Long],
+                    numRecommendations: Int): Seq[(Long, Double)] = {
     LongMatrixFactorizationModel.allRecommendations(userVector, model.productFeatures)
       .toLocalIterator
       .filter {
