@@ -11,18 +11,22 @@ import univ.bigdata.course.part2.Recommendation
 import univ.bigdata.course.part2.Recommendation.toID
 
 object MovieIO {
+  // Reads file and creates new movies from it
   def readMovies(inputFile: String): RDD[Movie] = {
+  // Read reviews from file
     val reviews = getMovieReviews(inputFile)
+  // Creates Movies from reviews
     batchMovieReviews(reviews)
   }
-
+  // Creates reviews from file 
   @throws[IOException]
   def getMovieReviews(inputFilePath: String): RDD[MovieReview] = {
     val reviewsLines = SparkMain.sc.textFile(inputFilePath)
     reviewsLines.map(MovieIOInternals.lineToReview)
   }
-
+  // Creates Movies from reviews
   def batchMovieReviews(reviews: RDD[MovieReview]): RDD[Movie] = {
+  // Group reviews by movies ID and create new movie by passing it's ID and reviews vector
     val reviewsGrouped: RDD[(String, Iterable[MovieReview])] = reviews.groupBy(_.movieId)
     reviewsGrouped.map {
       case (id, movieReviews) => new Movie(id, movieReviews.toVector)
