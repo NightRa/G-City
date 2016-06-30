@@ -19,7 +19,7 @@ public class MovieReview implements Serializable {
     public final String summary;
 
     public final String review;
-
+	// add to score
     public MovieReview addToScore(double delta) {
         return new MovieReview(movieId, userId, profileName, helpfulness, score + delta, timestamp, summary, review);
     }
@@ -34,7 +34,7 @@ public class MovieReview implements Serializable {
         this.summary = summary;
         this.review = review;
     }
-
+	// Check if two MovieReview objects are equal
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -51,7 +51,7 @@ public class MovieReview implements Serializable {
         if (!summary.equals(that.summary)) return false;
         return review.equals(that.review);
     }
-
+	// Hash code
     @Override
     public int hashCode() {
         int result;
@@ -67,7 +67,7 @@ public class MovieReview implements Serializable {
         result = 31 * result + review.hashCode();
         return result;
     }
-
+	// Movie review output
     @Override
     public String toString() {
         return "MovieReview{" +

@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class MovieIOInternals {
+	// Try to get the value,in case of failure throws error String
     public static <A> A tryOrError(Supplier<A> value, String error) {
         try {
             return value.get();
@@ -43,7 +44,7 @@ public class MovieIOInternals {
         if(i == -1) throw new IllegalArgumentException("Invalid input field format: \"" + field + "\"");
         return field.substring(i + 2);
     }
-
+	// Parse to Helpfulness
     public static Helpfulness parseHelpfulness(String helpfulnessStr) throws IllegalArgumentException {
         String[] split = helpfulnessStr.split("/");
         if(split.length != 2) {

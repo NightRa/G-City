@@ -13,16 +13,16 @@ public final class Helpfulness implements Serializable {
         this.thumbsUp = thumbsUp;
         this.total = total;
     }
-
+	// Combines two Helpfulness classes into one
     public static Helpfulness combine(Helpfulness x, Helpfulness y) {
         return new Helpfulness(x.thumbsUp + y.thumbsUp, x.total + y.total);
     }
-
+	// Calculates helpfulness ratio
     public Optional<Double> helpfulnessRatio() {
         if (total == 0) return Optional.empty();
         else return Optional.of(Doubles.round((double) thumbsUp / total));
     }
-
+	// Check if two helpfulness classes are equal
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -34,14 +34,14 @@ public final class Helpfulness implements Serializable {
         return total == that.total;
 
     }
-
+	// Hash function
     @Override
     public int hashCode() {
         int result = thumbsUp;
         result = 31 * result + total;
         return result;
     }
-
+	// Helpfulness Output
     @Override
     public String toString() {
         return thumbsUp + "/" + total;
