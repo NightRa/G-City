@@ -10,3 +10,4 @@ export HADOOP_YARN_HOME=$HADOOP_PREFIX
 
 export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_PREFIX:$HADOOP_PREFIX/sbin:$HADOOP_PREFIX/bin
 export SPARK_DIST_CLASSPATH=$(hadoop classpath)
+export PATH=$PATH:/opt/maven/bin

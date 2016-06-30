@@ -30,7 +30,7 @@ Vagrant.configure(2) do |config|
 
             # Installing and configuring java.
             cp /vagrant/install_java.sh .
-            ./install_java.sh
+            ./install_java.sh        
 
             # Passwordless ssh communication between two virtual nodes.
             su vagrant -c "ssh-keygen -t rsa -P '' -f /home/vagrant/.ssh/id_rsa"
@@ -45,6 +45,7 @@ Vagrant.configure(2) do |config|
             # !!! Fill your commands here !!!
 
             cp /vagrant/scripts/* .
+            ./install-maven.sh
             source ./install-hadoop.sh
             ./install-spark.sh
 
