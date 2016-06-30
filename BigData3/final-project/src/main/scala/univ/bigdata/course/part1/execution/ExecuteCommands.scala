@@ -16,8 +16,10 @@ object ExecuteCommands {
     val inputPath = Paths.get(inputFile)
     val outputPath = Paths.get(commandsTask.outputFile)
 
-    if (!Files.exists(inputPath)) sys.error(s"Input file $inputPath doesn't exist")
-    if (!Files.exists(outputPath)) sys.error(s"Output file $outputPath doesn't exist")
+    // if (!Files.exists(inputPath)) sys.error(s"Input file $inputPath doesn't exist")
+    // doesn't have to be a local file on the file system.
+    // if (!Files.exists(outputPath)) sys.error(s"Output file $outputPath doesn't exist")
+    // We create this file.
 
     // ------------------------------------------------------------
     // Read movies

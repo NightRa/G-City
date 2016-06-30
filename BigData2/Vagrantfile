@@ -46,8 +46,10 @@ Vagrant.configure(2) do |config|
 
             cp /vagrant/scripts/* .
             source ./install-hadoop.sh
+            ./install-spark.sh
 
             ./setup-master.sh
+
         SHELL
     end
 

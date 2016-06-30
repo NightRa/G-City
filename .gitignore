@@ -6,6 +6,7 @@ target/
 */out*
 hw1/queries_out.txt
 *.tar.gz
+*.tgz
 files/
 dependency-reduced-pom.xml
 BigData3/HugeDataset/
