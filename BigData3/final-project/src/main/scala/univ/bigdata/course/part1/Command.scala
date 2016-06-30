@@ -10,37 +10,37 @@ case class CommandsTask(reviewsFileName: String, outputFile: String, commands: V
 
 /** All the Commands extend Command, supply a name and execution: What to output given the Movies RDD. These call the actual functions. */
 sealed trait Command {
-  def commandName: String
+  def commandName: String   // Name of command
   final def execute(movies: RDD[Movie]): String = commandName + "\n" + exec(movies) + "\n"
-  protected def exec(movies: RDD[Movie]): String
+  protected def exec(movies: RDD[Movie]): String  // String representing the command
 }
 
 // The Command classes
-case object TotalMoviesAverageScore extends Command {
+case object TotalMoviesAverageScore extends Command {   // TotalMoviesAverageScore Command
   override def commandName: String = "totalMoviesAverageScore"
   override def exec(movies: RDD[Movie]): String =
     s"Total average: ${totalMoviesAverageScore(movies)}"
 }
-case class TotalMovieAverage(productID: String) extends Command {
+case class TotalMovieAverage(productID: String) extends Command {   // TotalMovieAverage Command
   override def commandName: String = s"totalMovieAverage $productID"
   override protected def exec(movies: RDD[Movie]): String =
     s"Movies $productID average is ${Doubles.round(totalMovieAverage(movies, productID))}"
 }
-case class GetTopKMoviesAverage(topK: Int) extends Command {
+case class GetTopKMoviesAverage(topK: Int) extends Command {   // GetTopKMoviesAverage Command
   override def commandName: String = s"getTopKMoviesAverage $topK"
   override protected def exec(movies: RDD[Movie]): String = getTopKMoviesAverage(movies, topK).mkString("\n")
 }
-case object MovieWithHighestAverage extends Command {
+case object MovieWithHighestAverage extends Command {   // MovieWithHighestAverage Command
   override def commandName: String = "movieWithHighestAverage"
   override protected def exec(movies: RDD[Movie]): String =
     s"The movie with highest average:  ${movieWithHighestAverage(movies).getOrElse("")}"
     // Notice the double space here. This is how it's in the example output.
 }
-case object MostReviewedProduct extends Command {
+case object MostReviewedProduct extends Command {   // MostReviewedProduct Command
   override def commandName: String = "mostReviewedProduct"
   override protected def exec(movies: RDD[Movie]): String = s"The most reviewed movie product id is ${mostReviewedProduct(movies).movieId}"
 }
-case class ReviewCountPerMovieTopKMovies(topK: Int) extends Command {
+case class ReviewCountPerMovieTopKMovies(topK: Int) extends Command {   // ReviewCountPerMovieTopKMovies Command
   override def commandName: String = s"reviewCountPerMovieTopKMovies $topK"
   override protected def exec(movies: RDD[Movie]): String = {
     reviewCountPerMovieTopKMovies(movies, topK).map {
@@ -48,12 +48,12 @@ case class ReviewCountPerMovieTopKMovies(topK: Int) extends Command {
     }.mkString("\n")
   }
 }
-case class MostPopularMovieReviewedByKUsers(numOfUsers: Int) extends Command {
+case class MostPopularMovieReviewedByKUsers(numOfUsers: Int) extends Command {   // MostPopularMovieReviewedByKUsers Command
   override def commandName: String = s"mostPopularMovieReviewedByKUsers $numOfUsers"
   override protected def exec(movies: RDD[Movie]): String =
     s"Most popular movie with highest average score, reviewed by at least $numOfUsers users ${mostPopularMovieReviewedByKUsers(movies, numOfUsers).map(_.movieId).getOrElse("")}"
 }
-case class MoviesReviewWordsCount(topK: Int) extends Command {
+case class MoviesReviewWordsCount(topK: Int) extends Command {   // MoviesReviewWordsCount Command
   override def commandName: String = s"moviesReviewWordsCount $topK"
   override protected def exec(movies: RDD[Movie]): String = {
     moviesReviewWordsCount(movies, topK).map {
@@ -61,7 +61,7 @@ case class MoviesReviewWordsCount(topK: Int) extends Command {
     }.mkString("\n")
   }
 }
-case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int) extends Command {
+case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int) extends Command {   // TopYMoviesReviewTopXWordsCount Command
   override def commandName: String = s"topYMoviesReviewTopXWordsCount $topMovies $topWords"
   override protected def exec(movies: RDD[Movie]): String = {
     topYMoviesReviewTopXWordsCount(movies, topMovies, topWords).map {
@@ -70,7 +70,7 @@ case class TopYMoviesReviewTopXWordsCount(topMovies: Int, topWords: Int) extends
   }
 
 }
-case class TopKHelpfullUsers(topK: Int) extends Command {
+case class TopKHelpfullUsers(topK: Int) extends Command {   // TopKHelpfullUsers Command
   override def commandName: String = s"topKHelpfullUsers $topK"
   override protected def exec(movies: RDD[Movie]): String = {
     topKHelpfullUsers(movies, topK).map {
@@ -78,7 +78,7 @@ case class TopKHelpfullUsers(topK: Int) extends Command {
     }.mkString("\n")
   }
 }
-case object MoviesCount extends Command {
+case object MoviesCount extends Command {   // MoviesCount Command
   override def commandName: String = "moviesCount"
   override protected def exec(movies: RDD[Movie]): String =
     s"Total number of distinct movies reviewed [${moviesCount(movies)}]."

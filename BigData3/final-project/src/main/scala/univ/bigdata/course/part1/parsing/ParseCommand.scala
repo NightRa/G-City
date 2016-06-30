@@ -24,6 +24,7 @@ object ParseCommand {
     }
   }
 
+  // Either returns a vector of commands or an error
   def parseLines (lines: Seq[String]) : Either[String, Vector[Command]] = {
     lines.toVector.traverseU(parse)
     // Note: It does compile. All ok. BTW, the U there is because the legendary scala issue that is fixed in 2.12
@@ -32,11 +33,12 @@ object ParseCommand {
   def assert(b: Boolean): Option[Unit] = if(b) Some(()) else None
 
 
+  // Parse line either to a command or to an error
   def parse(line : String) : Either[String, Command] = {
-    val words = line.split(' ')
+    val words = line.split(' ') // Split to words
     if(words.length == 0) return Left(s"Bad command line: ${line}")
-    val command = words(0)
-    def getIntAt (index : Int) : Option[Int] = {
+    val command = words(0)  // Command token -- first word
+    def getIntAt (index : Int) : Option[Int] = {  // Optionally gets the integer value of the word[index]
       maybeIndex(words, index).flatMap(maybeConvertToInt)
     }
 
