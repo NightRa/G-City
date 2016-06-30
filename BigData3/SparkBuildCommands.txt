@@ -9,4 +9,14 @@ Running:
   final-project-1.0-SNAPSHOT.jar \
   commands "C:\Users\Ilan Godik\Programming\BigData\BigData3\commands.txt"
 
-"C:\spark-1.6.2\bin\spark-submit.cmd" --driver-java-options "-Xss16m" --master local[*] --class org.apache.spark.examples.mllib.MovieLensALS "C:\spark-1.6.2\lib\spark-examples-1.6.2-hadoop2.6.0.jar" "data/mllib/sample_movielens_data.txt"  
+./bin/spark-submit --class univ.bigdata.course.MainRunner --master local[*] final-project-1.0-SNAPSHOT.jar commands "commands.txt" 2> /dev/null
+
+
+==================
+Running on HADOOP:
+==================
+- build with mvn clean install, and copy the jar into the BigData2 folder (from BigData3/final-project/target).
+
+cd /vagrant
+~/spark-1.6.2-bin-without-hadoop/bin/spark-submit --class univ.bigdata.course.MainRunner --master local[*] final-projec
+t-1.0-SNAPSHOT.jar commands "commands.txt"
