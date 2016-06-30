@@ -10,7 +10,7 @@ object MoviesFunctions {
 
   /**
     * Note: All the following functions get the movies as
-    * minimal paramater (type - RDD[Movie])
+    * parameter (type - RDD[Movie])
     */
 
   /**
@@ -75,7 +75,6 @@ object MoviesFunctions {
     getTopKMoviesAverage(movies, topK)
   }
 
-
   /**
     * @return - the most reviewed movie among all movies
     */
@@ -83,7 +82,6 @@ object MoviesFunctions {
     val order = Ordering.by((movie: Movie) => movie.movieReviews.size)
     movies.max()(order) // May throw, hopefully we won't get empty datasets.
   }
-
 
   def topKMoviesByNumReviews(movies: RDD[Movie], topK: Int): Vector[Movie] = {
     implicit val ordering = Ordering.by((movie: Movie) => (-movie.movieReviews.size, movie.movieId))
@@ -106,7 +104,6 @@ object MoviesFunctions {
     * Computes most popular movie which has been reviewed by at least
     * numOfUsers (provided as parameter).
     *
-    * @param movies     - RDD of the movies
     * @param numOfUsers - limit of minimum users which reviewed the movie
     * @return - movie which got highest count of reviews
     */
@@ -118,8 +115,7 @@ object MoviesFunctions {
   /**
     * Compute map of words count for top K words
     *
-    * @param movies - RDD of the movies
-    * @param topK   - top k number
+    * @param topK - top k number
     * @return - map (type - Array[(String, Long)]) where key is the word and value is the number of occurrences
     *         of this word in the reviews summary, map ordered by words count in decreasing order.
     */
