@@ -51,7 +51,7 @@ object SparkMain {
         val recommendTaskO = ParseRecommendation.parseRecommendationTask(lines.asScala)
         //                                         ^^^^^^
         recommendTaskO match {
-          case Some(task) => Recommendation.execute(task)
+          case Some(task) => Recommendation.execute(task) // Execute recommendations
           //                                 ^^^^^
           case None => sys.error("Invalid recommend input file format")
         }
@@ -59,12 +59,12 @@ object SparkMain {
         if (args.length != 3) invalidArgsError(args)
         val trainFile = args(1)
         val testFile = args(2)
-        ExecuteMap.execute(trainFile, testFile)
+        ExecuteMap.execute(trainFile, testFile)     // Execute MAP
         //          ^^^^^
       case "pagerank" =>
         if (args.length != 2) invalidArgsError(args)
         val moviesFile = args(1)
-        PageRank.execute(moviesFile)
+        PageRank.execute(moviesFile)  // Execute page-rank alg
         //        ^^^^^
       case _ =>
         invalidArgsError(args)
@@ -72,6 +72,7 @@ object SparkMain {
 
   }
 
+  // In case of invalid arguements - exit
   def invalidArgsError(args: Array[String]): Unit = {
     println("Invalid program arguments.")
     println("Valid args: commands commandsFileName | recommend recommendFileName | map movies-train.txt movies-test.txt | pagerank movies-simple.txt")
