@@ -17,8 +17,8 @@ case class Recommendation(userName: String, recommendations: Array[String]) {
 }
 
 object Recommendation {
-  val rank: Int = 75
-  val iterations: Int = 15
+  val rank: Int = 75        // ALS constant  parameter
+  val iterations: Int = 15  // ALS constant  parameter
   val numRecommendations: Int = 10
 
   def createRatings(reviews: RDD[MovieReview], movieIDs: RDD[(String, Long)], userIDs: RDD[(String, Long)]): RDD[Rating[Long]] = {
@@ -38,6 +38,7 @@ object Recommendation {
     model
   }
 
+  // Normalize reviews score to a zero average
   def normalizeReviews(reviews: RDD[MovieReview]): RDD[MovieReview] = {
     val normalizedMovies = {
       val rawMovies = MovieIO.batchMovieReviews(reviews)
@@ -51,22 +52,24 @@ object Recommendation {
     normalizedReviews
   }
 
+  // Execute recommendation task
   def execute(task: RecommendationTask) = {
     val reviewsInputFile = task.inputFile
 
-    val reviews = MovieIO.getMovieReviews(reviewsInputFile)
-    val normalizedReviews = normalizeReviews(reviews).cache()
+    val reviews: RDD[MovieReview] = MovieIO.getMovieReviews(reviewsInputFile)  // Get all reviews
+    val normalizedReviews: RDD[MovieReview] = normalizeReviews(reviews).cache() // Normalize reviews score
 
     val reverseMovieIDs: RDD[(Long, String)] =
       normalizedReviews.map(r => (toID(r.movieId), r.movieId)).distinct(8).cache()
 
-    val userMovies: RDD[(String, Iterable[MovieReview])] =
+    val userMovies: RDD[(String, Iterable[MovieReview])] = // Group movie reviews by username
       normalizedReviews.groupBy(_.userId).cache()
 
     // Finished preparation
 
     val ratings: RDD[Rating[Long]] =
       normalizedReviews.map(r => Rating(toID(r.userId), toID(r.movieId), r.score.toFloat)).cache()
+
     // Train using ALS
     val model: LongMatrixFactorizationModel = als(ratings)
 
@@ -76,29 +79,35 @@ object Recommendation {
     val taskUserIDs: Seq[(String, Long)] =
       task.users.view.map(userName => (userName, toID(userName)))
 
-    val userVectors: Seq[(String, Array[Double])] = taskUserIDs.map {
+    val userVectors: Seq[(String, Array[Double])] = taskUserIDs.map { // Get user's ALS' feature array
       case (userName, userID) => (userName, model.userFeatures.lookup(userID).headOption match {
         case None => Array.fill(rank)(0.0)
         case Some(features) => features
       })
     }
 
-    val userRecommendations: Seq[Recommendation] = userVectors.map {
+    val userRecommendations: Seq[Recommendation] = userVectors.map {  // Recommend
       case (userName, userVector) =>
         val movies: Seq[(Long, Double)] =
           rankNewMovies(
             userVector,
             model,
-            userMovies.lookup(userName).headOption
+            userMovies.lookup(userName).headOption    // The movies which the user has already seen
               .fold[Set[Long]](Set.empty)(i => i.map(r => toID(r.movieId)).toSet),
             numRecommendations)
 
-        Recommendation(userName,
-          movies.map {
+        val movieRecommendation: Array[String] =
+          movies.map {            // Movies recommendations
             case (movieID, rating) =>
-              reverseMovieIDs.lookup(movieID).head
-              // Every movie in the model should have come from the input.
-          }.toArray)
+              (reverseMovieIDs.lookup(movieID).head, // Get movie name from it's hash
+                rating)
+            // Every movie in the model should have come from the input.
+          }.sortBy{
+            case (movieName, rating) => (-rating, movieName) // sort by rating and than by movie name
+          }.map(_._1)     // movie names to recommend
+            .toArray
+        // Recommendation
+        Recommendation(userName, movieRecommendation)
     }
 
     // Output recommendations
@@ -109,25 +118,28 @@ object Recommendation {
     fileOutput.close()
   }
 
-  def rankNewMovies(userVector: Array[Double],
-                    model: LongMatrixFactorizationModel,
-                    viewedMovies: Set[Long],
+  // Get movie ranks for user
+  def rankNewMovies(userVector: Array[Double],            // User's feature array
+                    model: LongMatrixFactorizationModel,  // ALS model
+                    viewedMovies: Set[Long],              // Movies user already saw
                     numRecommendations: Int): Seq[(Long, Double)] = {
     LongMatrixFactorizationModel.allRecommendations(userVector, model.productFeatures)
-      .toLocalIterator
-      .filter {
+      .filter { // Recommend only movies the user hasn't seen already
         case (movieID, score) => !viewedMovies.contains(movieID)
       }.take(numRecommendations).toSeq
   }
 
   // ------------------------------------------------------------------
 
+  // SHA-256 hash
   def hash(text: String): Array[Byte] = {
     val md = MessageDigest.getInstance("SHA-256")
     md.update(text.getBytes("UTF-8"))
     md.digest()
   }
 
+  // ALS algorithm works on Longs and not on strings - uniquely
+  // map movieName/userName to a LONG value
   def toID(s: String): Long = {
     val bytes = hash(s)
     BigInt(bytes).toLong // take the lower 64 bits from the 256 bits.

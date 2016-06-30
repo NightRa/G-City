@@ -44,8 +44,8 @@ object ExecuteMap {
         .groupBy(r => toID(r.userId))
         .mapValues(_.map(r => toID(r.movieId)).toSeq)
     // userID => movieIDs w/ >=3 score
-    val moviesToTest =
-      testReviews.groupBy(r => toID(r.userId))
+    val moviesToTest: RDD[(Long, Seq[Long])] =
+      testReviews.groupBy(r => toID(r.userId))              // assumption: number of movies a user sees is << 2^32
         .mapValues(_.filter(_.score >= 3.0).map(r => toID(r.movieId)).toSeq) // the user should have liked the movie
         .filter(_._2.nonEmpty) // Users that still have some movies they liked, which we can check.
     val testedUsers: RDD[TestedUser] =
@@ -55,11 +55,10 @@ object ExecuteMap {
 
     val ranks: Iterator[Array[Rank]] = relevantRankLists(model, testedUsers)
 
-    val mapResult = Map.calcMap(ranks)
+    val mapResult: Double = Map.calcMap(ranks)
     println("============================================================\n\n\n\n")
     println(s"MAP Result: $mapResult")
     println("\n\n\n\n============================================================")
-
   }
 
   def trainModel(reviews: RDD[MovieReview]): LongMatrixFactorizationModel = {
@@ -90,7 +89,7 @@ object ExecuteMap {
   }
 
   def relevantRankLists(model: LongMatrixFactorizationModel, users: RDD[TestedUser]): Iterator[Array[Rank]] = {
-    users
+    users               // number of tested users is small
       .toLocalIterator // is that OK? If not throws an exception: RDD inside RDD. It is ok! That's the point.
       .map(testedUser => userRanks(model, testedUser))
   }
