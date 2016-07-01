@@ -13,35 +13,39 @@ import univ.bigdata.course.part2.Recommendation.toID
 object MovieIO {
   // Reads file and creates new movies from it
   def readMovies(inputFile: String): RDD[Movie] = {
-  // Read reviews from file
+    // Read reviews from file
     val reviews = getMovieReviews(inputFile)
-  // Creates Movies from reviews
+    // Creates Movies from reviews
     batchMovieReviews(reviews)
   }
-  // Creates reviews from file 
+
+  // Creates reviews from file
   @throws[IOException]
   def getMovieReviews(inputFilePath: String): RDD[MovieReview] = {
-    val fsPath = if(inputFilePath.contains("://")) inputFilePath.split("://")(1) else inputFilePath
-    val hPath = if(inputFilePath.contains("://")) inputFilePath else "file://" + inputFilePath
+    val fsPath = if (inputFilePath.contains("://")) inputFilePath.split("://")(1) else inputFilePath
+    val hPath = if (inputFilePath.contains("://")) inputFilePath else "file://" + inputFilePath
 
-    val path = if(fileExists(fsPath)) fsPath else hPath
+    val path =
+      if (fileExists(fsPath)) fsPath
+      else if (fileExists(hPath)) hPath
+      else inputFilePath
 
     val reviewsLines = SparkMain.sc.textFile(path)
     reviewsLines.map(MovieIOInternals.lineToReview)
   }
 
   def fileExists(path: String): Boolean = {
-    try{
+    try {
       SparkMain.sc.textFile(path).first()
       true
     } catch {
-      case e:Exception => false
+      case e: Exception => false
     }
   }
 
   // Creates Movies from reviews
   def batchMovieReviews(reviews: RDD[MovieReview]): RDD[Movie] = {
-  // Group reviews by movies ID and create new movie by passing it's ID and reviews vector
+    // Group reviews by movies ID and create new movie by passing it's ID and reviews vector
     val reviewsGrouped: RDD[(String, Iterable[MovieReview])] = reviews.groupBy(_.movieId)
     reviewsGrouped.map {
       case (id, movieReviews) => new Movie(id, movieReviews.toVector)
