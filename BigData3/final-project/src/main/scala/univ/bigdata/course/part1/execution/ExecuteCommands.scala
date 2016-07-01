@@ -10,7 +10,6 @@ import univ.bigdata.course.part1.preprocessing.MovieIO
 
 object ExecuteCommands {
   def execute(commandsTask: CommandsTask): Unit = {
-    // Check if files exist
     val inputFile = commandsTask.reviewsFileName
 
     // ------------------------------------------------------------

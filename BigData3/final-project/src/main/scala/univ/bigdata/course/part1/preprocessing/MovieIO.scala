@@ -21,9 +21,24 @@ object MovieIO {
   // Creates reviews from file 
   @throws[IOException]
   def getMovieReviews(inputFilePath: String): RDD[MovieReview] = {
-    val reviewsLines = SparkMain.sc.textFile(inputFilePath)
+    val fsPath = if(inputFilePath.contains("://")) inputFilePath.split("://")(1) else inputFilePath
+    val hPath = if(inputFilePath.contains("://")) inputFilePath else "file://" + inputFilePath
+
+    val path = if(fileExists(fsPath)) fsPath else hPath
+
+    val reviewsLines = SparkMain.sc.textFile(path)
     reviewsLines.map(MovieIOInternals.lineToReview)
   }
+
+  def fileExists(path: String): Boolean = {
+    try{
+      SparkMain.sc.textFile(path).first()
+      true
+    } catch {
+      case e:Exception => false
+    }
+  }
+
   // Creates Movies from reviews
   def batchMovieReviews(reviews: RDD[MovieReview]): RDD[Movie] = {
   // Group reviews by movies ID and create new movie by passing it's ID and reviews vector

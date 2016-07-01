@@ -55,7 +55,7 @@ object Recommendation {
   // Execute recommendation task
   def execute(task: RecommendationTask) = {
     val reviewsInputFile = task.inputFile
-
+    
     val reviews: RDD[MovieReview] = MovieIO.getMovieReviews(reviewsInputFile)  // Get all reviews
     val normalizedReviews: RDD[MovieReview] = normalizeReviews(reviews).cache() // Normalize reviews score
 

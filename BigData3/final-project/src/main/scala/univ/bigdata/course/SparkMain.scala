@@ -13,14 +13,14 @@ import univ.bigdata.course.part4.PageRank
 import scala.collection.JavaConverters._
 
 object SparkMain {
-  lazy val conf = new SparkConf().setAppName("Big Data HW3")
+  lazy val conf = new SparkConf().setAppName("Big Data HW3").setIfMissing("spark.master","local[*]")
   lazy val sc = new SparkContext(conf)
 
   def init(): Unit = {
     // Touch the lazy vals to init them.
     conf
     sc
-    Logger.getRootLogger.setLevel(Level.ERROR)
+    Logger.getRootLogger.setLevel(Level.WARN)
   }
 
   def main(args: Array[String]) {

@@ -2,6 +2,7 @@ package univ.bigdata.course
 
 import java.util.stream.{Collectors, DoubleStream}
 
+import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.rdd.RDD
 import univ.bigdata.course.part1.movie.{Helpfulness, Movie, MovieReview}
 
